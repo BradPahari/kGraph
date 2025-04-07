@@ -1,3 +1,0 @@
-# kGraph
-
-# Rita was here
