@@ -19,7 +19,7 @@ def upload_csv():
     filepath = os.path.join(UPLOAD_FOLDER, file.filename)
     file.save(filepath)
 
-    # Convert CSV to RDF from custom format
+    # Convert CSV to RDF from any number of columns
     g = Graph()
     EX = Namespace("http://example.org/")
 
@@ -27,14 +27,14 @@ def upload_csv():
         reader = csv.DictReader(csvfile)
 
         for row in reader:
-            brand = row['Brand Name'].strip()
-            brand_type = row['Brand Type'].strip()
-            description = row['Description'].strip()
+            subject_label = row.get('Brand Name') or row.get('Subject') or list(row.values())[0]
+            subject_uri = URIRef(EX[subject_label.strip().replace(" ", "_")])
 
-            brand_uri = URIRef(EX[brand.replace(" ", "_")])
-
-            g.add((brand_uri, URIRef(EX['BrandType']), Literal(brand_type)))
-            g.add((brand_uri, URIRef(EX['Description']), Literal(description)))
+            for key, value in row.items():
+                if key == subject_label or not value.strip():
+                    continue
+                predicate_uri = URIRef(EX[key.strip().replace(" ", "_")])
+                g.add((subject_uri, predicate_uri, Literal(value.strip())))
 
     rdf_file = filepath.replace('.csv', '.ttl')
     g.serialize(destination=rdf_file, format='turtle')
