@@ -12,41 +12,90 @@
             border: 1px solid lightgray;
             margin-top: 20px;
         }
+
+        #infoBox {
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background: #f9f9f9;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+
+        #messageBox {
+            margin-top: 10px;
+            font-weight: bold;
+            color: green;
+        }
+
+        #errorBox {
+            margin-top: 10px;
+            font-weight: bold;
+            color: red;
+        }
     </style>
 </head>
 
 <body>
     <h1>Upload CSV to Create Knowledge Graph</h1>
     <input type="file" id="csvFile" accept=".csv">
-    <button onclick="uploadCSV()">Convert to K-Graph</button>
+    <button onclick="uploadCSV()">Submit .CSV File</button>
+    <div id="messageBox"></div>
+    <div id="errorBox"></div>
     <div id="graph"></div>
     <button onclick="downloadGraphImage()">Download Graph Image</button>
+    <div id="infoBox">Click a node or edge to see more details.</div>
 
     <script>
+        let graphDataGlobal = {};
+
         async function uploadCSV() {
             const fileInput = document.getElementById('csvFile');
+            const messageBox = document.getElementById('messageBox');
+            const errorBox = document.getElementById('errorBox');
             const file = fileInput.files[0];
+
+            messageBox.innerText = '';
+            errorBox.innerText = '';
+
+            if (!file || !file.name.endsWith('.csv')) {
+                errorBox.innerText = 'Please upload a valid .csv file.';
+                return;
+            }
+
             const formData = new FormData();
             formData.append('file', file);
 
-            const response = await fetch('/upload', {
-                method: 'POST',
-                body: formData
-            });
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
 
-            const data = await response.json();
-            drawGraph(data);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errorBox.innerText = data.error || 'Upload failed.';
+                    return;
+                }
+
+                messageBox.innerText = data.message || 'Upload succeeded!';
+                graphDataGlobal = data;
+                drawGraph(data);
+
+            } catch (error) {
+                errorBox.innerText = 'An error occurred during upload.';
+                console.error(error);
+            }
         }
 
         function drawGraph(graphData) {
-            const shortenedLabel = text => text.length > 30 ? text.substring(0, 27) + '...' : text;
-
             const nodes = new vis.DataSet(graphData.nodes.map(n => ({
                 id: n.id,
-                label: shortenedLabel(n.label),
-                title: n.label,  // Full label as tooltip
+                label: n.label,
+                title: n.label,
                 shape: 'dot',
-                size: n.label.length > 20 ? 10 : 20,
+                size: 20,
                 font: { size: 16 }
             })));
 
@@ -61,9 +110,7 @@
             const container = document.getElementById('graph');
             const data = { nodes, edges };
             const options = {
-                layout: {
-                    improvedLayout: true
-                },
+                layout: { improvedLayout: true },
                 physics: {
                     stabilization: true,
                     barnesHut: {
@@ -75,17 +122,72 @@
                 },
                 interaction: {
                     hover: true,
-                    tooltipDelay: 100
+                    tooltipDelay: 100,
+                    navigationButtons: true,
+                    selectable: true
                 },
                 edges: {
-                    smooth: {
-                        type: 'continuous'
-                    }
+                    smooth: { type: 'continuous' }
                 }
             };
 
             const network = new vis.Network(container, data, options);
-            window.graphNetwork = network; // Store for image export
+            window.graphNetwork = network;
+
+            function clean(label) {
+                return label.replace("http://example.org/", "");
+            }
+
+            network.on("click", function (params) {
+                const infoBox = document.getElementById("infoBox");
+                if (params.nodes.length > 0) {
+                    const nodeId = params.nodes[0];
+                    const connectedEdges = network.getConnectedEdges(nodeId);
+
+                    const records = [];
+                    const edgeData = connectedEdges.map(eid => edges.get(eid));
+
+                    edgeData.forEach(e => {
+                        const from = e.from;
+                        const to = e.to;
+                        const predicate = e.label;
+                        const subject = from === nodeId ? from : to;
+                        const object = from === nodeId ? to : from;
+                        records.push({ predicate, object });
+                    });
+
+                    const grouped = {};
+                    for (const r of records) {
+                        if (r.predicate === 'ObjectID') {
+                            if (!grouped[r.object]) grouped[r.object] = { ObjectID: r.object };
+                        }
+                    }
+
+                    for (const r of records) {
+                        if (r.predicate !== 'ObjectID') {
+                            const id = Object.keys(grouped).find(k => {
+                                return records.some(rr => rr.predicate === 'ObjectID' && rr.object === k);
+                            });
+                            if (id) grouped[id][r.predicate] = r.object;
+                        }
+                    }
+
+                    let output = `Node: ${nodeId.split('::').pop()}\n\n`;
+                    Object.values(grouped).forEach(group => {
+                        output += `ObjectID: ${group.ObjectID || '-'}\n`;
+                        output += `Brand_Type: ${group['Brand_Type'] || '-'}\n`;
+                        output += `Description: ${group['Description'] || '-'}\n\n`;
+                    });
+
+                    infoBox.innerText = output.trim();
+
+                } else if (params.edges.length > 0) {
+                    const edge = edges.get(params.edges[0]);
+                    infoBox.innerHTML = `Edge:\n• From: ${edge.from.split('::').pop()}\n• To:   ${edge.to.split('::').pop()}\n• Label: [${edge.label}]`;
+                } else {
+                    infoBox.innerText = "Click a node or edge to see more details.";
+                }
+            });
         }
 
         function downloadGraphImage() {
