@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import csv
 import os
-from rdflib import Graph, URIRef, Literal, Namespace
+import json
 
 app = Flask(__name__)
 CORS(app)
@@ -15,41 +15,84 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload_csv():
-    file = request.files['file']
+    file = request.files.get('file')
+
+    # File type validation
+    if not file or not file.filename.endswith('.csv'):
+        return jsonify({"error": "Invalid file type. Please upload a .csv file."}), 400
+
     filepath = os.path.join(UPLOAD_FOLDER, file.filename)
     file.save(filepath)
 
-    # Convert CSV to RDF from any number of columns
-    g = Graph()
-    EX = Namespace("http://example.org/")
+    try:
+        with open(filepath, newline='', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            rows = list(reader)
 
-    with open(filepath, newline='', encoding='utf-8') as csvfile:
-        reader = csv.DictReader(csvfile)
+            # Check for minimum row count
+            if len(rows) < 100:
+                return jsonify({"error": "CSV must have at least 100 rows."}), 400
 
-        for row in reader:
-            subject_label = row.get('Brand Name') or row.get('Subject') or list(row.values())[0]
-            subject_uri = URIRef(EX[subject_label.strip().replace(" ", "_")])
+            # Validate headers
+            headers = reader.fieldnames
+            if not headers or any(h is None or h.strip() == '' for h in headers):
+                return jsonify({"error": "Invalid CSV format: headers are missing or malformed."}), 400
 
-            for key, value in row.items():
-                if key == subject_label or not value.strip():
-                    continue
-                predicate_uri = URIRef(EX[key.strip().replace(" ", "_")])
-                g.add((subject_uri, predicate_uri, Literal(value.strip())))
+            # Check for inconsistent structure
+            for i, row in enumerate(rows):
+                if len(row) != len(headers):
+                    return jsonify({"error": f"Invalid CSV format: inconsistent structure on row {i+2}."}), 400
+                for field in ["ObjectID", "Brand_Name", "Brand_Type", "Description"]:
+                    if field not in row or row[field].strip() == "":
+                        return jsonify({"error": f"Invalid CSV format: missing or empty '{field}' in row {i+2}."}), 400
 
-    rdf_file = filepath.replace('.csv', '.ttl')
-    g.serialize(destination=rdf_file, format='turtle')
+    except Exception as e:
+        return jsonify({"error": f"Failed to parse CSV: {str(e)}"}), 400
 
-    # Prepare nodes and edges for visualization
+    # Convert CSV rows to JSON-LD
+    context = {
+        "@context": {
+            "ObjectID": "http://example.org/ObjectID",
+            "Brand_Name": "http://example.org/Brand_Name",
+            "Brand_Type": "http://example.org/Brand_Type",
+            "Description": "http://example.org/Description"
+        }
+    }
+
+    graph = []
+    for row in rows:
+        entry = {"@type": "Product"}
+        for k, v in row.items():
+            entry[k.strip()] = v.strip()
+        graph.append(entry)
+
+    jsonld = context.copy()
+    jsonld["@graph"] = graph
+
+    # Prepare nodes and edges for knowledge graph visualization
     nodes = set()
     edges = []
-    for s, p, o in g:
-        nodes.add(str(s))
-        nodes.add(str(o))
-        edges.append({"from": str(s), "to": str(o), "label": str(p).split('/')[-1]})
 
-    node_list = [{"id": n, "label": n.split('/')[-1] if '/' in n else n} for n in nodes]
+    for row in rows:
+        subj = row.get("Brand_Name", "Unknown Brand").strip()
+        subj_id = f"Brand::{subj}"
+        nodes.add(subj_id)
 
-    return jsonify({"nodes": node_list, "edges": edges})
+        for key in ["Brand_Type", "ObjectID", "Description"]:
+            if key in row and row[key].strip():
+                obj = row[key].strip()
+                obj_id = f"{key}::{obj}"
+                nodes.add(obj_id)
+                edges.append({"from": subj_id, "to": obj_id, "label": key})
+
+    node_list = [{"id": n, "label": n.split("::", 1)[-1]} for n in nodes]
+
+    return jsonify({
+        "message": "File uploaded and converted to JSON-LD successfully.",
+        "jsonld": jsonld,
+        "nodes": node_list,
+        "edges": edges
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)
