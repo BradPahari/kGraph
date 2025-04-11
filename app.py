@@ -29,16 +29,12 @@ def upload_csv():
             reader = csv.DictReader(csvfile)
             rows = list(reader)
 
-            # Check for minimum row count
-            if len(rows) < 100:
-                return jsonify({"error": "CSV must have at least 100 rows."}), 400
-
             # Validate headers
             headers = reader.fieldnames
             if not headers or any(h is None or h.strip() == '' for h in headers):
                 return jsonify({"error": "Invalid CSV format: headers are missing or malformed."}), 400
 
-            # Check for inconsistent structure
+            # Check for inconsistent structure or missing required fields
             for i, row in enumerate(rows):
                 if len(row) != len(headers):
                     return jsonify({"error": f"Invalid CSV format: inconsistent structure on row {i+2}."}), 400
