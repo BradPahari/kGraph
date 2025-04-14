@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>CSV to Knowledge Graph</title>
+    <script src="https://unpkg.com/vis-network@9.1.2/standalone/umd/vis-network.min.js"></script>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+        }
+
+        .upload-section {
+            border: 2px dashed #2563eb;
+            padding: 30px;
+            text-align: center;
+            background-color: #eff6ff;
+            border-radius: 8px;
+        }
+
+        .custom-upload-button {
+            color: #2563eb;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: underline;
+        }
+
+        #csvFile {
+            display: none;
+        }
+
+        #fileName {
+            margin-top: 10px;
+        }
+
+        .dropdowns {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .dropdowns select,
+        .dropdowns button {
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 6px;
+        }
+
+        #generateBtn,
+        #doneBtn {
+            margin-top: 10px;
+            padding: 10px 16px;
+            font-size: 14px;
+            border-radius: 6px;
+        }
+
+        #messageBox,
+        #errorBox {
+            margin-top: 15px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            display: none;
+        }
+
+        #messageBox {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        #errorBox {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        th {
+            background: #f9f9f9;
+        }
+
+        #graph {
+            width: 100%;
+            height: 600px;
+            margin-top: 40px;
+            border: 2px dashed #2563eb;
+            border-radius: 8px;
+        }
+
+        #infoBox {
+            margin-top: 10px;
+            padding: 12px;
+            border: 1px dashed #2563eb;
+            background-color: #f0f7ff;
+            font-family: monospace;
+        }
+
+        #downloadButton {
+            background-color: #2563eb;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background-image: url("https://img.icons8.com/material-rounded/24/ffffff/download--v1.png");
+            background-size: 18px;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: absolute;
+            right: 30px;
+            top: 0;
+            z-index: 10;
+        }
+
+        .graph-wrapper {
+            position: relative;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Upload CSV to Create Knowledge Graph</h2>
+
+        <div class="upload-section">
+            <p>📄 Browse for your CSV file <span class="custom-upload-button"
+                    onclick="document.getElementById('csvFile').click()">Upload CSV</span></p>
+            <p>Supported format: <code>.csv</code> files only</p>
+            <div id="fileName">No file chosen</div>
+            <input type="file" id="csvFile" accept=".csv" onchange="handleFileSelect()" />
+        </div>
+
+        <div class="dropdowns">
+            <label>Subject Column:</label>
+            <select id="subjectSelect" disabled></select>
+            <label>Object Column:</label>
+            <select id="objectSelect" disabled></select>
+            <button id="generateBtn" onclick="generateTriples()" disabled>Generate Triple Table</button>
+        </div>
+
+        <div id="messageBox"></div>
+        <div id="errorBox"></div>
+
+        <div id="tripleTable"></div>
+        <button id="doneBtn" onclick="submitTriples()" disabled>Done (Build Graph)</button>
+
+        <div class="graph-wrapper">
+            <button id="downloadButton" onclick="downloadGraphImage()"></button>
+            <div id="graph"></div>
+            <div id="infoBox">Click a node or edge to see more details.</div>
+        </div>
+    </div>
+
+    <script>
+        let filename = "";
+        let rows = [];
+        let network = null;
+        let allEdges = [];
+        let allNodes = [];
+        let predicates = ["hasType", "relatedTo", "owns", "describes", "connectedTo"];
+
+        function handleFileSelect() {
+            const fileInput = document.getElementById("csvFile");
+            const file = fileInput.files[0];
+            document.getElementById("fileName").innerText = file ? file.name : "No file chosen";
+            if (file) uploadCSV();
+        }
+
+        async function uploadCSV() {
+            const fileInput = document.getElementById("csvFile");
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            const subjectSel = document.getElementById("subjectSelect");
+            const objectSel = document.getElementById("objectSelect");
+            const generateBtn = document.getElementById("generateBtn");
+            const doneBtn = document.getElementById("doneBtn");
+            const messageBox = document.getElementById("messageBox");
+            const errorBox = document.getElementById("errorBox");
+
+            messageBox.style.display = "none";
+            errorBox.style.display = "none";
+            subjectSel.innerHTML = "";
+            objectSel.innerHTML = "";
+            subjectSel.disabled = true;
+            objectSel.disabled = true;
+            generateBtn.disabled = true;
+            doneBtn.disabled = true;
+
+            if (!file || !file.name.endsWith(".csv")) {
+                errorBox.style.display = "block";
+                errorBox.innerText = "Please upload a valid .csv file.";
+                return;
+            }
+
+            formData.append("file", file);
+
+            try {
+                const res = await fetch("/upload", { method: "POST", body: formData });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    errorBox.style.display = "block";
+                    errorBox.innerText = data.error || "Upload failed.";
+                    return;
+                }
+
+                filename = data.filename;
+                rows = data.rows;
+
+                data.headers.forEach(h => {
+                    subjectSel.innerHTML += `<option value="${h}">${h}</option>`;
+                    objectSel.innerHTML += `<option value="${h}">${h}</option>`;
+                });
+
+                subjectSel.disabled = false;
+                objectSel.disabled = false;
+                generateBtn.disabled = false;
+                messageBox.style.display = "block";
+                messageBox.innerText = data.message || "File uploaded successfully.";
+            } catch (err) {
+                errorBox.style.display = "block";
+                errorBox.innerText = "An error occurred during upload.";
+            }
+        }
+
+        async function generateTriples() {
+            const subjectCol = document.getElementById("subjectSelect").value;
+            const objectCol = document.getElementById("objectSelect").value;
+            const res = await fetch("/prepare-triples", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ filename, subject: subjectCol, object: objectCol })
+            });
+
+            const data = await res.json();
+            const table = document.getElementById("tripleTable");
+
+            if (!res.ok) {
+                document.getElementById("errorBox").style.display = "block";
+                document.getElementById("errorBox").innerText = data.error || "Triple prep failed.";
+                return;
+            }
+
+            document.getElementById("doneBtn").disabled = false;
+
+            table.innerHTML = `
+        <table>
+          <tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>
+          ${data.triples.map((t, i) => `
+            <tr>
+              <td>${t.subject}</td>
+              <td>
+                <select data-row="${i}">
+                  ${predicates.map(p => `<option value="${p}">${p}</option>`).join("")}
+                </select>
+              </td>
+              <td>${t.object}</td>
+            </tr>
+          `).join("")}
+        </table>
+      `;
+        }
+
+        async function submitTriples() {
+            const selects = document.querySelectorAll("#tripleTable select");
+            const triples = [];
+            selects.forEach(sel => {
+                const row = sel.closest("tr");
+                triples.push({
+                    subject: row.children[0].innerText,
+                    predicate: sel.value,
+                    object: row.children[2].innerText
+                });
+            });
+
+            const res = await fetch("/build-graph", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ triples })
+            });
+
+            const data = await res.json();
+            allNodes = data.nodes;
+            allEdges = data.edges;
+            drawGraph(data);
+        }
+
+        function drawGraph(graphData) {
+            const container = document.getElementById("graph");
+            const data = {
+                nodes: new vis.DataSet(graphData.nodes),
+                edges: new vis.DataSet(graphData.edges)
+            };
+            const options = {
+                layout: { improvedLayout: true },
+                physics: {
+                    stabilization: true,
+                    barnesHut: {
+                        gravitationalConstant: -5000,
+                        centralGravity: 0.3,
+                        springLength: 150,
+                        springConstant: 0.04
+                    }
+                },
+                edges: { arrows: "to" }
+            };
+            network = new vis.Network(container, data, options);
+
+            network.on("click", function (params) {
+                const infoBox = document.getElementById("infoBox");
+                const nodeId = params.nodes[0];
+                if (!nodeId) return (infoBox.innerText = "Click a node or edge to see more details.");
+
+                const connected = allEdges.filter(e => e.from === nodeId || e.to === nodeId);
+                const node = allNodes.find(n => n.id === nodeId);
+
+                let desc = `Node: ${node.label}\nConnected to:\n`;
+                connected.forEach(e => {
+                    const otherId = e.from === nodeId ? e.to : e.from;
+                    const otherLabel = allNodes.find(n => n.id === otherId)?.label || "Unknown";
+                    const direction = e.from === nodeId ? "→" : "←";
+                    desc += `• ${e.label} ${direction} ${otherLabel}\n`;
+                });
+                infoBox.innerText = desc;
+            });
+        }
+
+        function downloadGraphImage() {
+            const canvas = document.querySelector("#graph canvas");
+            const link = document.createElement("a");
+            link.download = "knowledge_graph.png";
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
+</body>
+
+</html>
