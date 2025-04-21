@@ -6,8 +6,9 @@
     <title>CSV to Knowledge Graph</title>
     <script src="https://unpkg.com/vis-network@9.1.2/standalone/umd/vis-network.min.js"></script>
     <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css">
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css" />
     <style>
+        /* [CSS unchanged, your full styles remain here] */
         body {
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f4f9;
@@ -46,10 +47,6 @@
 
         #csvFile {
             display: none;
-        }
-
-        #fileName {
-            margin-top: 10px;
         }
 
         .dropdowns {
@@ -149,13 +146,23 @@
         .graph-wrapper {
             position: relative;
         }
+
+        .history-bar {
+            margin: 30px 0 10px;
+        }
+
+        .history-bar select {
+            padding: 6px;
+            margin-left: 8px;
+            margin-right: 12px;
+            border-radius: 6px;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
         <h2>Upload CSV to Create Knowledge Graph</h2>
-
         <div class="upload-section">
             <p>📄 Browse for your CSV file <span class="custom-upload-button"
                     onclick="document.getElementById('csvFile').click()">Upload CSV</span></p>
@@ -178,6 +185,14 @@
         <div id="tripleTable"></div>
         <button id="doneBtn" onclick="submitTriples()" disabled>Done (Build Graph)</button>
 
+        <div class="history-bar">
+            <label for="historySelect"><strong>Load from History:</strong></label>
+            <select id="historySelect">
+                <option value="">Select a saved graph...</option>
+            </select>
+            <button onclick="loadSelectedGraph()">Load</button>
+        </div>
+
         <div class="graph-wrapper">
             <button id="downloadButton" onclick="downloadGraphImage()"></button>
             <div id="graph"></div>
@@ -187,11 +202,10 @@
 
     <script>
         let filename = "";
-        let rows = [];
-        let network = null;
         let allEdges = [];
         let allNodes = [];
-        let predicates = ["hasType", "relatedTo", "owns", "describes", "connectedTo"];
+        let network = null;
+        const predicates = ["hasType", "relatedTo", "owns", "describes", "connectedTo"];
 
         function handleFileSelect() {
             const fileInput = document.getElementById("csvFile");
@@ -201,8 +215,7 @@
         }
 
         async function uploadCSV() {
-            const fileInput = document.getElementById("csvFile");
-            const file = fileInput.files[0];
+            const file = document.getElementById("csvFile").files[0];
             const formData = new FormData();
             const subjectSel = document.getElementById("subjectSelect");
             const objectSel = document.getElementById("objectSelect");
@@ -239,8 +252,6 @@
                 }
 
                 filename = data.filename;
-                rows = data.rows;
-
                 data.headers.forEach(h => {
                     subjectSel.innerHTML += `<option value="${h}">${h}</option>`;
                     objectSel.innerHTML += `<option value="${h}">${h}</option>`;
@@ -277,22 +288,13 @@
 
             document.getElementById("doneBtn").disabled = false;
 
-            table.innerHTML = `
-        <table>
-          <tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>
-          ${data.triples.map((t, i) => `
-            <tr>
-              <td>${t.subject}</td>
-              <td>
-                <select data-row="${i}">
-                  ${predicates.map(p => `<option value="${p}">${p}</option>`).join("")}
-                </select>
-              </td>
-              <td>${t.object}</td>
-            </tr>
-          `).join("")}
-        </table>
-      `;
+            table.innerHTML = `<table><tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>` +
+                data.triples.map((t, i) => `
+          <tr>
+            <td>${t.subject}</td>
+            <td><select data-row="${i}">${predicates.map(p => `<option value="${p}">${p}</option>`).join("")}</select></td>
+            <td>${t.object}</td>
+          </tr>`).join("") + `</table>`;
         }
 
         async function submitTriples() {
@@ -310,13 +312,14 @@
             const res = await fetch("/build-graph", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ triples })
+                body: JSON.stringify({ triples, filename })
             });
 
             const data = await res.json();
             allNodes = data.nodes;
             allEdges = data.edges;
             drawGraph(data);
+            saveToLocalHistory({ filename, triples, graphData: data });
         }
 
         function drawGraph(graphData) {
@@ -345,13 +348,12 @@
                 const nodeId = params.nodes[0];
                 if (!nodeId) return (infoBox.innerText = "Click a node or edge to see more details.");
 
-                const connected = allEdges.filter(e => e.from === nodeId || e.to === nodeId);
-                const node = allNodes.find(n => n.id === nodeId);
-
+                const node = graphData.nodes.find(n => n.id === nodeId);
+                const connected = graphData.edges.filter(e => e.from === nodeId || e.to === nodeId);
                 let desc = `Node: ${node.label}\nConnected to:\n`;
                 connected.forEach(e => {
                     const otherId = e.from === nodeId ? e.to : e.from;
-                    const otherLabel = allNodes.find(n => n.id === otherId)?.label || "Unknown";
+                    const otherLabel = graphData.nodes.find(n => n.id === otherId)?.label || "Unknown";
                     const direction = e.from === nodeId ? "→" : "←";
                     desc += `• ${e.label} ${direction} ${otherLabel}\n`;
                 });
@@ -366,6 +368,40 @@
             link.href = canvas.toDataURL();
             link.click();
         }
+
+        function saveToLocalHistory(entry) {
+            const history = JSON.parse(localStorage.getItem("kgraphHistory") || "[]");
+            const cleanName = filename.includes("_") ? filename.split("_").slice(1).join("_") : filename;
+            entry.id = Date.now();
+            entry.timestamp = new Date().toISOString();
+            entry.filename = cleanName;
+            history.push(entry);
+            localStorage.setItem("kgraphHistory", JSON.stringify(history));
+            populateHistoryDropdown();
+        }
+
+        function populateHistoryDropdown() {
+            const select = document.getElementById("historySelect");
+            select.innerHTML = `<option value="">Select a saved graph...</option>`;
+            const history = JSON.parse(localStorage.getItem("kgraphHistory") || "[]");
+            history.forEach(entry => {
+                const option = document.createElement("option");
+                option.value = entry.id;
+                option.text = `${entry.filename} — ${new Date(entry.timestamp).toLocaleString()}`;
+                select.appendChild(option);
+            });
+        }
+
+        function loadSelectedGraph() {
+            const selectedId = document.getElementById("historySelect").value;
+            if (!selectedId) return;
+            const history = JSON.parse(localStorage.getItem("kgraphHistory") || "[]");
+            const entry = history.find(e => e.id == selectedId);
+            if (!entry) return;
+            drawGraph(entry.graphData);
+        }
+
+        window.onload = () => populateHistoryDropdown();
     </script>
 </body>
 

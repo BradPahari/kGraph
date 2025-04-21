@@ -1,0 +1,10 @@
+Class,Subject,predicate,object
+PRODUCT,PRODUCT,HasA,ProductName
+,PRODUCT,HasA,ProductID
+,PRODUCT,HasA,Category
+,PRODUCT,HasA,Price
+CUSTOMER,,,
+CUSTOMER,CUSTOMER,HasA,CustomerName
+CUSTOMER,CUSTOMER,HasA,CustomerID
+CUSTOMER,,,
+,CUSTOMER,,PRODUCT

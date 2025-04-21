@@ -9,33 +9,28 @@ UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @upload_bp.route('/upload', methods=['POST'])
+@upload_bp.route('/upload', methods=['POST'])
 def upload_csv():
-    file = request.files.get('file')
-    if not file or not file.filename.endswith('.csv'):
-        return jsonify({'error': 'Invalid file type. Please upload a CSV file.'}), 400
+    files = request.files.getlist('files')
+    if not files or not all(f.filename.endswith('.csv') for f in files):
+        return jsonify({'error': 'Invalid file type. Only CSV files allowed.'}), 400
 
-    filename = f"{uuid.uuid4().hex}_{file.filename}"
-    path = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(path)
+    file_infos = []
 
-    try:
+    for file in files[:5]:  # Accept up to 5 files
+        filename = f"{uuid.uuid4().hex}_{file.filename}"
+        path = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(path)
+
         with open(path, newline='', encoding='utf-8') as f:
             reader = csv.reader(f)
             headers = next(reader)
             rows = list(reader)
 
-            for i, row in enumerate(rows, start=2):
-                if len(row) != len(headers):
-                    return jsonify({'error': f'Invalid CSV format at row {i}.'}), 400
-                if any(cell.strip() == '' for cell in row):
-                    return jsonify({'error': f'Missing or blank value in row {i}.'}), 400
-
-        return jsonify({
-            'message': 'File uploaded and converted to JSON-LD successfully.',
+        file_infos.append({
             'filename': filename,
             'headers': headers,
             'rows': rows
         })
 
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    return jsonify({'message': 'Files uploaded successfully.', 'files': file_infos})
