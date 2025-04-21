@@ -169,15 +169,27 @@
             <p>Supported format: <code>.csv</code> files only</p>
             <div id="fileName">No file chosen</div>
             <input type="file" id="csvFile" accept=".csv" onchange="handleFileSelect()" />
+            <div id="selectedFilesList"></div>
+            <button id="uploadAllBtn" onclick="uploadCSV(selectedFiles)"
+                style="margin-top: 12px; padding: 10px 16px; font-size: 14px; border-radius: 6px; background-color: #2563eb; color: white; border: none; cursor: pointer;">
+                Upload All Selected Files
+            </button>
+
         </div>
 
         <div class="dropdowns">
+            <label>Subject File:</label>
+            <select id="subjectFileSelect" onchange="updateHeaderDropdowns()"></select>
+            <label>Object File:</label>
+            <select id="objectFileSelect" onchange="updateHeaderDropdowns()"></select>
+
             <label>Subject Column:</label>
             <select id="subjectSelect" disabled></select>
             <label>Object Column:</label>
             <select id="objectSelect" disabled></select>
             <button id="generateBtn" onclick="generateTriples()" disabled>Generate Triple Table</button>
         </div>
+
 
         <div id="messageBox"></div>
         <div id="errorBox"></div>
@@ -207,16 +219,46 @@
         let network = null;
         const predicates = ["hasType", "relatedTo", "owns", "describes", "connectedTo"];
 
+        let selectedFiles = [];
+
         function handleFileSelect() {
             const fileInput = document.getElementById("csvFile");
-            const file = fileInput.files[0];
-            document.getElementById("fileName").innerText = file ? file.name : "No file chosen";
-            if (file) uploadCSV();
+            const newFile = fileInput.files[0];
+            if (!newFile || !newFile.name.endsWith(".csv")) return;
+
+            // Prevent duplicates
+            if (selectedFiles.some(f => f.name === newFile.name)) return;
+
+            if (selectedFiles.length >= 5) {
+                alert("You can only upload up to 5 files.");
+                return;
+            }
+
+            selectedFiles.push(newFile);
+            renderSelectedFiles();
+            fileInput.value = ''; // clear input so same file can be reselected if deleted
         }
 
-        async function uploadCSV() {
-            const file = document.getElementById("csvFile").files[0];
-            const formData = new FormData();
+        function renderSelectedFiles() {
+            const list = document.getElementById("selectedFilesList");
+            list.innerHTML = selectedFiles.map((file, index) => `
+        <div style="display:flex; align-items:center; margin-top:8px;">
+            <i class="bi bi-file-earmark" style="font-size: 18px; margin-right: 6px;"></i>
+            <span style="flex-grow:1;">${file.name}</span>
+            <button onclick="removeFile(${index})" style="border:none; background:none; cursor:pointer;">
+                <i class="bi bi-trash-fill" style="color:red;"></i>
+            </button>
+        </div>
+    `).join('');
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            renderSelectedFiles();
+        }
+
+
+        async function uploadCSV(files) {
             const subjectSel = document.getElementById("subjectSelect");
             const objectSel = document.getElementById("objectSelect");
             const generateBtn = document.getElementById("generateBtn");
@@ -233,13 +275,15 @@
             generateBtn.disabled = true;
             doneBtn.disabled = true;
 
-            if (!file || !file.name.endsWith(".csv")) {
-                errorBox.style.display = "block";
-                errorBox.innerText = "Please upload a valid .csv file.";
-                return;
+            const formData = new FormData();
+            for (const file of selectedFiles) {
+                if (!file.name.endsWith(".csv")) {
+                    errorBox.style.display = "block";
+                    errorBox.innerText = "Only CSV files are supported.";
+                    return;
+                }
+                formData.append("files", file);
             }
-
-            formData.append("file", file);
 
             try {
                 const res = await fetch("/upload", { method: "POST", body: formData });
@@ -251,30 +295,68 @@
                     return;
                 }
 
-                filename = data.filename;
-                data.headers.forEach(h => {
-                    subjectSel.innerHTML += `<option value="${h}">${h}</option>`;
-                    objectSel.innerHTML += `<option value="${h}">${h}</option>`;
+                // Show dropdowns for the first file only (or allow file selection later if you wish)
+                // Collect all headers from all uploaded files
+                // Save file headers to memory
+                window.uploadedFileInfo = data.files; // [{ filename, headers }]
+                filename = data.files[0].filename;
+
+                // Populate file selection dropdowns
+                const subjectFileSelect = document.getElementById("subjectFileSelect");
+                const objectFileSelect = document.getElementById("objectFileSelect");
+
+                subjectFileSelect.innerHTML = "";
+                objectFileSelect.innerHTML = "";
+
+                // Store mapping of original names
+                window.uploadedFileMap = {};
+
+                data.files.forEach(file => {
+                    const shortName = file.filename.split("_").slice(1).join("_");
+                    window.uploadedFileMap[shortName] = file.filename;
+
+                    const option = `<option value="${file.filename}">${shortName}</option>`;
+                    subjectFileSelect.innerHTML += option;
+                    objectFileSelect.innerHTML += option;
                 });
+
+
+                // Trigger header dropdown population
+                updateHeaderDropdowns();
 
                 subjectSel.disabled = false;
                 objectSel.disabled = false;
                 generateBtn.disabled = false;
                 messageBox.style.display = "block";
-                messageBox.innerText = data.message || "File uploaded successfully.";
+                messageBox.innerText = "Files uploaded successfully.";
+
+                subjectSel.disabled = false;
+                objectSel.disabled = false;
+                generateBtn.disabled = false;
+                messageBox.style.display = "block";
+                messageBox.innerText = "Files uploaded successfully.";
             } catch (err) {
                 errorBox.style.display = "block";
                 errorBox.innerText = "An error occurred during upload.";
             }
         }
 
+
         async function generateTriples() {
             const subjectCol = document.getElementById("subjectSelect").value;
             const objectCol = document.getElementById("objectSelect").value;
+            const subjectFile = document.getElementById("subjectFileSelect").value;
+            const objectFile = document.getElementById("objectFileSelect").value;
+
             const res = await fetch("/prepare-triples", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ filename, subject: subjectCol, object: objectCol })
+                body: JSON.stringify({
+                    subjectFile: subjectFile,
+                    objectFile: objectFile,
+                    subject: subjectCol,
+                    object: objectCol
+                })
             });
 
             const data = await res.json();
@@ -290,12 +372,14 @@
 
             table.innerHTML = `<table><tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>` +
                 data.triples.map((t, i) => `
-          <tr>
-            <td>${t.subject}</td>
-            <td><select data-row="${i}">${predicates.map(p => `<option value="${p}">${p}</option>`).join("")}</select></td>
-            <td>${t.object}</td>
-          </tr>`).join("") + `</table>`;
+      <tr>
+        <td>${t.subject}</td>
+        <td><select data-row="${i}">${predicates.map(p => `<option value="${p}">${p}</option>`).join("")}</select></td>
+        <td>${t.object}</td>
+      </tr>`).join("") + `</table>`;
         }
+
+
 
         async function submitTriples() {
             const selects = document.querySelectorAll("#tripleTable select");
@@ -400,6 +484,28 @@
             if (!entry) return;
             drawGraph(entry.graphData);
         }
+
+        function updateHeaderDropdowns() {
+            const subjectFile = document.getElementById("subjectFileSelect").value;
+            const objectFile = document.getElementById("objectFileSelect").value;
+
+            const subjectSel = document.getElementById("subjectSelect");
+            const objectSel = document.getElementById("objectSelect");
+
+            subjectSel.innerHTML = "";
+            objectSel.innerHTML = "";
+
+            const subjectHeaders = window.uploadedFileInfo.find(f => f.filename === subjectFile)?.headers || [];
+            const objectHeaders = window.uploadedFileInfo.find(f => f.filename === objectFile)?.headers || [];
+
+            subjectHeaders.forEach(h => {
+                subjectSel.innerHTML += `<option value="${h}">${h}</option>`;
+            });
+            objectHeaders.forEach(h => {
+                objectSel.innerHTML += `<option value="${h}">${h}</option>`;
+            });
+        }
+
 
         window.onload = () => populateHistoryDropdown();
     </script>
