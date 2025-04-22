@@ -352,8 +352,8 @@
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    subjectFile: subjectFile,
-                    objectFile: objectFile,
+                    subject_file: subjectFile,
+                    object_file: objectFile,
                     subject: subjectCol,
                     object: objectCol
                 })
@@ -381,15 +381,21 @@
 
 
 
+
         async function submitTriples() {
             const selects = document.querySelectorAll("#tripleTable select");
             const triples = [];
+            const subjectFile = document.getElementById("subjectFileSelect").value;
+            const objectFile = document.getElementById("objectFileSelect").value;
+
             selects.forEach(sel => {
                 const row = sel.closest("tr");
                 triples.push({
                     subject: row.children[0].innerText,
                     predicate: sel.value,
-                    object: row.children[2].innerText
+                    object: row.children[2].innerText,
+                    subjectFile: subjectFile,
+                    objectFile: objectFile
                 });
             });
 
@@ -405,6 +411,12 @@
             drawGraph(data);
             saveToLocalHistory({ filename, triples, graphData: data });
         }
+
+
+        function cleanFilename(f) {
+            return f.includes("_") ? f.split("_").slice(1).join("_") : f;
+        }
+
 
         function drawGraph(graphData) {
             const container = document.getElementById("graph");
@@ -434,14 +446,20 @@
 
                 const node = graphData.nodes.find(n => n.id === nodeId);
                 const connected = graphData.edges.filter(e => e.from === nodeId || e.to === nodeId);
-                let desc = `Node: ${node.label}\nConnected to:\n`;
+
+                const nodeFileMap = graphData.nodeSources || {};
+                const nodeFile = cleanFilename(nodeFileMap[node.label] || 'unknown.csv');
+                let desc = `Node: ${node.label} (${nodeFile})\nConnected to:\n`;
                 connected.forEach(e => {
                     const otherId = e.from === nodeId ? e.to : e.from;
                     const otherLabel = graphData.nodes.find(n => n.id === otherId)?.label || "Unknown";
+                    const otherFile = cleanFilename(nodeFileMap[otherLabel] || 'unknown.csv');
                     const direction = e.from === nodeId ? "→" : "←";
-                    desc += `• ${e.label} ${direction} ${otherLabel}\n`;
+                    desc += `• ${e.label} ${direction} ${otherLabel} (${otherFile})\n`;
                 });
+
                 infoBox.innerText = desc;
+
             });
         }
 
