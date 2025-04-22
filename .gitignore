@@ -1,0 +1,11 @@
+# Ignore all files in the uploads folder
+uploads/*
+
+# But keep the folder itself
+!uploads/.gitkeep
+
+# Ignore all files in the static folder
+/__pycache__
+
+# ignore json file
+kgraph_history.json
