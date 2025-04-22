@@ -43,20 +43,29 @@ def build_graph():
     nodes = []
     edges = []
     node_map = {}
+    node_sources = {}  # node label -> filename
     node_id = 1
 
     for t in triples:
         subj = t['subject']
-        pred = t['predicate']
         obj = t['object']
+        pred = t['predicate']
+        def clean_filename(f):
+            return f.split("_", 1)[1] if "_" in f else f
+
+        subj_file = clean_filename(t.get('subjectFile', 'unknown.csv'))
+        obj_file = clean_filename(t.get('objectFile', 'unknown.csv'))
+
 
         if subj not in node_map:
             node_map[subj] = node_id
             nodes.append({"id": node_id, "label": subj})
+            node_sources[subj] = subj_file
             node_id += 1
         if obj not in node_map:
             node_map[obj] = node_id
             nodes.append({"id": node_id, "label": obj})
+            node_sources[obj] = obj_file
             node_id += 1
 
         edges.append({
@@ -72,8 +81,8 @@ def build_graph():
         to_id = edge['to']
         label = edge['label']
 
-        from_label = next((n['label'] for n in nodes if n['id'] == from_id), str(from_id))
-        to_label = next((n['label'] for n in nodes if n['id'] == to_id), str(to_id))
+        from_label = next(n['label'] for n in nodes if n['id'] == from_id)
+        to_label = next(n['label'] for n in nodes if n['id'] == to_id)
 
         if str(from_id) not in nodeRelationships:
             nodeRelationships[str(from_id)] = []
@@ -83,18 +92,21 @@ def build_graph():
         nodeRelationships[str(from_id)].append({
             "label": label,
             "direction": "→",
-            "target": to_label
+            "target": to_label,
+            "file": node_sources.get(to_label, "")
         })
 
         nodeRelationships[str(to_id)].append({
             "label": label,
             "direction": "←",
-            "target": from_label
+            "target": from_label,
+            "file": node_sources.get(from_label, "")
         })
 
     graphData = {
         "nodes": nodes,
-        "edges": edges
+        "edges": edges,
+        "nodeSources": node_sources  # ✅ added
     }
 
     entry = {
@@ -110,6 +122,7 @@ def build_graph():
     save_to_history(entry)
 
     return jsonify(graphData)
+
 
 @graph_bp.route('/graph-history', methods=['GET'])
 def get_graph_history():
