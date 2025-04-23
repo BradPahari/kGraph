@@ -8,7 +8,6 @@
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css" />
     <style>
-        /* [CSS unchanged, your full styles remain here] */
         body {
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f4f9;
@@ -17,32 +16,106 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 30px;
             background-color: #fff;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 30px;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            padding-left: 30px;
+            border-left: 1px solid #e2e8f0;
         }
 
         h2 {
             color: #2c3e50;
             margin-bottom: 25px;
+            font-size: 24px;
+            font-weight: 600;
         }
 
         .upload-section {
             border: 2px dashed #2563eb;
-            padding: 30px;
+            padding: 100px 20px;
             text-align: center;
             background-color: #eff6ff;
             border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            margin-bottom: 18px;
+        }
+
+        .upload-section p {
+            margin: 0;
+            margin-bottom: 12px;
+        }
+
+        .icon-img {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .icon-img img {
+            width: 50px;
+            height: 50px;
         }
 
         .custom-upload-button {
             color: #2563eb;
             cursor: pointer;
+            font-size: 16px;
             font-weight: 500;
-            text-decoration: underline;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .custom-upload-button:hover {
+            color: #1d4ed8;
+        }
+
+        .file-uploaded {
+            background-color: #fff;
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            gap: 30px;
+            margin-bottom: 8px;
+        }
+
+        .file-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-uploaded button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            transition: opacity 0.2s ease;
+        }
+
+        .file-name button:hover {
+            opacity: 0.8;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
         }
 
         #csvFile {
@@ -50,26 +123,111 @@
         }
 
         .dropdowns {
-            margin-top: 20px;
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            align-items: center;
+            margin-bottom: 18px;
         }
 
-        .dropdowns select,
-        .dropdowns button {
+        .dropdowns .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: relative;
+        }
+
+        .dropdowns .form-group.file-group {
+            flex: 1;
+            min-width: calc(50% - 5px);
+        }
+
+        .dropdowns .form-group.column-group {
+            flex: 1;
+        }
+
+        .dropdowns .form-group.object-column {
+            min-width: calc(50% - 5px);
+        }
+
+        .dropdowns #generateBtn {
+            min-width: calc(50% - 5px);
+            margin-top: 24px;
+        }
+
+        .dropdowns label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .dropdowns select {
             padding: 8px 12px;
             font-size: 14px;
             border-radius: 6px;
+            border: 1px solid #d1d5db;
+            background-color: white;
+            color: #374151;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 32px;
+            transition: all 0.2s ease;
+            min-height: 42px;
+            width: 100%;
+        }
+
+        .dropdowns select:hover {
+            border-color: #2563eb;
+        }
+
+        .dropdowns select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+
+        .dropdowns select:disabled {
+            background-color: #f3f4f6;
+            cursor: not-allowed;
+            opacity: 0.7;
         }
 
         #generateBtn,
-        #doneBtn {
-            margin-top: 10px;
-            padding: 10px 16px;
+        #doneBtn,
+        #uploadAllBtn,
+        .btn {
+            background-color: #2563eb;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            padding: 14px 22px;
             font-size: 14px;
-            border-radius: 6px;
+            font-weight: 500;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        #generateBtn:hover,
+        #doneBtn:hover,
+        #uploadAllBtn:hover,
+        .btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        #generateBtn:disabled,
+        #doneBtn:disabled,
+        #uploadAllBtn:disabled,
+        .btn:disabled {
+            background-color: #93c5fd;
+            cursor: not-allowed;
+        }
+
+        .mb {
+            margin-bottom: 18px !important;
         }
 
         #messageBox,
@@ -98,16 +256,20 @@
             border-collapse: collapse;
             margin-top: 20px;
             background: white;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         th,
         td {
             border: 1px solid #ddd;
             padding: 10px;
+            text-align: left;
         }
 
         th {
             background: #f9f9f9;
+            font-weight: 600;
         }
 
         #graph {
@@ -116,6 +278,7 @@
             margin-top: 40px;
             border: 2px dashed #2563eb;
             border-radius: 8px;
+            background-color: #fff;
         }
 
         #infoBox {
@@ -124,6 +287,8 @@
             border: 1px dashed #2563eb;
             background-color: #f0f7ff;
             font-family: monospace;
+            border-radius: 6px;
+            white-space: pre-wrap;
         }
 
         #downloadButton {
@@ -138,9 +303,14 @@
             background-repeat: no-repeat;
             background-position: center;
             position: absolute;
-            right: 30px;
-            top: 0;
+            right: 18px;
+            top: 18px;
             z-index: 10;
+            transition: background-color 0.3s ease;
+        }
+
+        #downloadButton:hover {
+            background-color: #1d4ed8;
         }
 
         .graph-wrapper {
@@ -148,67 +318,147 @@
         }
 
         .history-bar {
-            margin: 30px 0 10px;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
         }
 
-        .history-bar select {
-            padding: 6px;
-            margin-left: 8px;
-            margin-right: 12px;
-            border-radius: 6px;
+        aside {
+            width: 300px;
+            background-color: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+            padding: 20px;
+            overflow-y: auto;
+            height: calc(100vh - 60px);
+            position: sticky;
+            top: 30px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .history-header h3 {
+            margin: 0;
+            color: #1e293b;
+            font-size: 18px;
+        }
+
+        .history-item {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover,
+        .history-item.active {
+            background-color: #eff6ff;
+            border-color: #2563eb;
+        }
+
+        .history-item-title {
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .history-item-date {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .close-history {
+            display: none;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h2>Upload CSV to Create Knowledge Graph</h2>
-        <div class="upload-section">
-            <p>📄 Browse for your CSV file <span class="custom-upload-button"
-                    onclick="document.getElementById('csvFile').click()">Upload CSV</span></p>
-            <p>Supported format: <code>.csv</code> files only</p>
-            <div id="fileName">No file chosen</div>
-            <input type="file" id="csvFile" accept=".csv" onchange="handleFileSelect()" />
-            <div id="selectedFilesList"></div>
-            <button id="uploadAllBtn" onclick="uploadCSV(selectedFiles)"
-                style="margin-top: 12px; padding: 10px 16px; font-size: 14px; border-radius: 6px; background-color: #2563eb; color: white; border: none; cursor: pointer;">
-                Upload All Selected Files
-            </button>
+        <aside id="historySidebar">
+            <div class="history-header">
+                <h3>Graph History</h3>
+            </div>
+            <div id="historyList">
+                <div class="history-bar">
+                    <label for="historySelect"><strong>Load from History:</strong></label>
+                    <select id="historySelect">
+                        <option value="">Select a saved graph...</option>
+                    </select>
+                    <button onclick="loadSelectedGraph()">Load</button>
+                </div>
+            </div>
+        </aside>
 
-        </div>
+        <div class="main-content">
+            <h2>Upload CSV to Create a Knowledge Graph</h2>
+            <div class="upload-section">
+                <div class="icon-img">
+                    <svg width="50" height="50" viewBox="0 0 71 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- SVG content omitted for brevity -->
+                    </svg>
+                </div>
+                <input type="file" id="csvFile" accept=".csv" multiple onchange="handleFileSelect()" />
+                <p style="margin: 0">
+                    Browse for your CSV files
+                    <a class="custom-upload-button" onclick="document.getElementById('csvFile').click()">
+                        Select Files
+                    </a>
+                </p>
+                <p id="formatMessage" style="margin: 5px 0 0px; font-size: 12px; color: #666">
+                    You can add up to 5 files max (Supported format: .csv files only)
+                </p>
+                <div id="selectedFilesList"></div>
+                <button id="uploadAllBtn" onclick="uploadCSV(selectedFiles)" disabled>
+                    Upload Selected Files
+                </button>
+            </div>
 
-        <div class="dropdowns">
-            <label>Subject File:</label>
-            <select id="subjectFileSelect" onchange="updateHeaderDropdowns()"></select>
-            <label>Object File:</label>
-            <select id="objectFileSelect" onchange="updateHeaderDropdowns()"></select>
+            <div class="dropdowns">
+                <div class="form-group file-group">
+                    <label>Subject File:</label>
+                    <select id="subjectFileSelect" onchange="updateHeaderDropdowns()"></select>
+                </div>
+                <div class="form-group file-group">
+                    <label>Object File:</label>
+                    <select id="objectFileSelect" onchange="updateHeaderDropdowns()"></select>
+                </div>
+                <div class="form-group column-group subject-column">
+                    <label>Subject Column:</label>
+                    <select id="subjectSelect" disabled></select>
+                </div>
+                <div class="form-group column-group object-column">
+                    <label>Object Column:</label>
+                    <select id="objectSelect" disabled></select>
+                </div>
+                <div style="text-align: end;">
+                    <button id="generateBtn" onclick="generateTriples()" disabled>Generate Triple Table</button>
+                </div>
+            </div>
 
-            <label>Subject Column:</label>
-            <select id="subjectSelect" disabled></select>
-            <label>Object Column:</label>
-            <select id="objectSelect" disabled></select>
-            <button id="generateBtn" onclick="generateTriples()" disabled>Generate Triple Table</button>
-        </div>
+            <div id="messageBox"></div>
+            <div id="errorBox"></div>
 
+            <div id="tripleTable" class="mb"></div>
+            <button id="doneBtn" onclick="submitTriples()" disabled>Done (Build Graph)</button>
 
-        <div id="messageBox"></div>
-        <div id="errorBox"></div>
-
-        <div id="tripleTable"></div>
-        <button id="doneBtn" onclick="submitTriples()" disabled>Done (Build Graph)</button>
-
-        <div class="history-bar">
-            <label for="historySelect"><strong>Load from History:</strong></label>
-            <select id="historySelect">
-                <option value="">Select a saved graph...</option>
-            </select>
-            <button onclick="loadSelectedGraph()">Load</button>
-        </div>
-
-        <div class="graph-wrapper">
-            <button id="downloadButton" onclick="downloadGraphImage()"></button>
-            <div id="graph"></div>
-            <div id="infoBox">Click a node or edge to see more details.</div>
+            <div class="graph-wrapper">
+                <button id="downloadButton" onclick="downloadGraphImage()"></button>
+                <div id="graph"></div>
+                <div id="infoBox">Click a node or edge to see more details.</div>
+            </div>
         </div>
     </div>
 
@@ -223,7 +473,7 @@
 
         function handleFileSelect() {
             const fileInput = document.getElementById("csvFile");
-            const newFile = fileInput.files[0];
+            const newFile = fileInput.files[fileInput.files.length - 1];
             if (!newFile || !newFile.name.endsWith(".csv")) return;
 
             // Prevent duplicates
@@ -242,21 +492,35 @@
         function renderSelectedFiles() {
             const list = document.getElementById("selectedFilesList");
             list.innerHTML = selectedFiles.map((file, index) => `
-        <div style="display:flex; align-items:center; margin-top:8px;">
-            <i class="bi bi-file-earmark" style="font-size: 18px; margin-right: 6px;"></i>
-            <span style="flex-grow:1;">${file.name}</span>
-            <button onclick="removeFile(${index})" style="border:none; background:none; cursor:pointer;">
-                <i class="bi bi-trash-fill" style="color:red;"></i>
-            </button>
-        </div>
-    `).join('');
+                <div class="file-uploaded">
+                    <div class="file-name">
+                        <input type="checkbox" id="file-${index}" checked onchange="updateUploadButton()">
+                        <i class="bi bi-file-earmark" style="font-size: 18px; color: #2563EB;"></i>
+                        <span>${file.name}</span>
+                    </div>
+                    <div class="file-actions">
+                        <button onclick="document.getElementById('csvFile').click()">
+                            <i class="bi bi-arrow-repeat" style="font-size: 18px; color: #2563EB;"></i>
+                        </button>
+                        <button onclick="removeFile(${index})">
+                            <i class="bi bi-trash" style="font-size: 18px; color: #FF0000;"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            updateUploadButton();
+        }
+
+        function updateUploadButton() {
+            const uploadAllBtn = document.getElementById("uploadAllBtn");
+            const checked = document.querySelectorAll('#selectedFilesList input[type="checkbox"]:checked');
+            uploadAllBtn.disabled = checked.length === 0;
         }
 
         function removeFile(index) {
             selectedFiles.splice(index, 1);
             renderSelectedFiles();
         }
-
 
         async function uploadCSV(files) {
             const subjectSel = document.getElementById("subjectSelect");
@@ -276,60 +540,29 @@
             doneBtn.disabled = true;
 
             const formData = new FormData();
-            for (const file of selectedFiles) {
-                if (!file.name.endsWith(".csv")) {
-                    errorBox.style.display = "block";
-                    errorBox.innerText = "Only CSV files are supported.";
-                    return;
-                }
-                formData.append("files", file);
-            }
+            selectedFiles.forEach(f => formData.append("files", f));
 
             try {
                 const res = await fetch("/upload", { method: "POST", body: formData });
                 const data = await res.json();
+                if (!res.ok) throw new Error(data.error || "Upload failed.");
 
-                if (!res.ok) {
-                    errorBox.style.display = "block";
-                    errorBox.innerText = data.error || "Upload failed.";
-                    return;
-                }
-
-                // Show dropdowns for the first file only (or allow file selection later if you wish)
-                // Collect all headers from all uploaded files
-                // Save file headers to memory
-                window.uploadedFileInfo = data.files; // [{ filename, headers }]
+                window.uploadedFileInfo = data.files;
                 filename = data.files[0].filename;
 
-                // Populate file selection dropdowns
                 const subjectFileSelect = document.getElementById("subjectFileSelect");
                 const objectFileSelect = document.getElementById("objectFileSelect");
-
                 subjectFileSelect.innerHTML = "";
                 objectFileSelect.innerHTML = "";
 
-                // Store mapping of original names
-                window.uploadedFileMap = {};
-
                 data.files.forEach(file => {
                     const shortName = file.filename.split("_").slice(1).join("_");
-                    window.uploadedFileMap[shortName] = file.filename;
-
-                    const option = `<option value="${file.filename}">${shortName}</option>`;
-                    subjectFileSelect.innerHTML += option;
-                    objectFileSelect.innerHTML += option;
+                    const opt = `<option value="${file.filename}">${shortName}</option>`;
+                    subjectFileSelect.innerHTML += opt;
+                    objectFileSelect.innerHTML += opt;
                 });
 
-
-                // Trigger header dropdown population
                 updateHeaderDropdowns();
-
-                subjectSel.disabled = false;
-                objectSel.disabled = false;
-                generateBtn.disabled = false;
-                messageBox.style.display = "block";
-                messageBox.innerText = "Files uploaded successfully.";
-
                 subjectSel.disabled = false;
                 objectSel.disabled = false;
                 generateBtn.disabled = false;
@@ -337,10 +570,9 @@
                 messageBox.innerText = "Files uploaded successfully.";
             } catch (err) {
                 errorBox.style.display = "block";
-                errorBox.innerText = "An error occurred during upload.";
+                errorBox.innerText = err.message || "An error occurred during upload.";
             }
         }
-
 
         async function generateTriples() {
             const subjectCol = document.getElementById("subjectSelect").value;
@@ -351,17 +583,9 @@
             const res = await fetch("/prepare-triples", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    subject_file: subjectFile,
-                    object_file: objectFile,
-                    subject: subjectCol,
-                    object: objectCol
-                })
+                body: JSON.stringify({ subject_file: subjectFile, object_file: objectFile, subject: subjectCol, object: objectCol })
             });
-
             const data = await res.json();
-            const table = document.getElementById("tripleTable");
-
             if (!res.ok) {
                 document.getElementById("errorBox").style.display = "block";
                 document.getElementById("errorBox").innerText = data.error || "Triple prep failed.";
@@ -369,18 +593,17 @@
             }
 
             document.getElementById("doneBtn").disabled = false;
-
-            table.innerHTML = `<table><tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>` +
+            document.getElementById("tripleTable").innerHTML =
+                `<table><tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>` +
                 data.triples.map((t, i) => `
-      <tr>
-        <td>${t.subject}</td>
-        <td><select data-row="${i}">${predicates.map(p => `<option value="${p}">${p}</option>`).join("")}</select></td>
-        <td>${t.object}</td>
-      </tr>`).join("") + `</table>`;
+                    <tr>
+                        <td>${t.subject}</td>
+                        <td><select data-row="${i}">${predicates.map(p => `<option value="${p}">${p}</option>`).join("")}</select></td>
+                        <td>${t.object}</td>
+                    </tr>
+                `).join("") +
+                `</table>`;
         }
-
-
-
 
         async function submitTriples() {
             const selects = document.querySelectorAll("#tripleTable select");
@@ -394,8 +617,8 @@
                     subject: row.children[0].innerText,
                     predicate: sel.value,
                     object: row.children[2].innerText,
-                    subjectFile: subjectFile,
-                    objectFile: objectFile
+                    subjectFile,
+                    objectFile
                 });
             });
 
@@ -404,7 +627,6 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ triples, filename })
             });
-
             const data = await res.json();
             allNodes = data.nodes;
             allEdges = data.edges;
@@ -412,30 +634,21 @@
             saveToLocalHistory({ filename, triples, graphData: data });
         }
 
-
         function cleanFilename(f) {
             return f.includes("_") ? f.split("_").slice(1).join("_") : f;
         }
 
-
         function drawGraph(graphData) {
             const container = document.getElementById("graph");
-            const data = {
-                nodes: new vis.DataSet(graphData.nodes),
-                edges: new vis.DataSet(graphData.edges)
-            };
+            const data = { nodes: new vis.DataSet(graphData.nodes), edges: new vis.DataSet(graphData.edges) };
             const options = {
                 layout: { improvedLayout: true },
                 physics: {
                     stabilization: true,
-                    barnesHut: {
-                        gravitationalConstant: -5000,
-                        centralGravity: 0.3,
-                        springLength: 150,
-                        springConstant: 0.04
-                    }
+                    barnesHut: { gravitationalConstant: -5000, centralGravity: 0.3, springLength: 150, springConstant: 0.04 }
                 },
-                edges: { arrows: "to" }
+                edges: { arrows: "to" },
+                interaction: { hover: true, tooltipDelay: 100, navigationButtons: true, selectable: true }
             };
             network = new vis.Network(container, data, options);
 
@@ -473,10 +686,9 @@
 
         function saveToLocalHistory(entry) {
             const history = JSON.parse(localStorage.getItem("kgraphHistory") || "[]");
-            const cleanName = filename.includes("_") ? filename.split("_").slice(1).join("_") : filename;
             entry.id = Date.now();
             entry.timestamp = new Date().toISOString();
-            entry.filename = cleanName;
+            entry.filename = cleanFilename(entry.filename || filename);
             history.push(entry);
             localStorage.setItem("kgraphHistory", JSON.stringify(history));
             populateHistoryDropdown();
@@ -485,8 +697,7 @@
         function populateHistoryDropdown() {
             const select = document.getElementById("historySelect");
             select.innerHTML = `<option value="">Select a saved graph...</option>`;
-            const history = JSON.parse(localStorage.getItem("kgraphHistory") || "[]");
-            history.forEach(entry => {
+            JSON.parse(localStorage.getItem("kgraphHistory") || "[]").forEach(entry => {
                 const option = document.createElement("option");
                 option.value = entry.id;
                 option.text = `${entry.filename} — ${new Date(entry.timestamp).toLocaleString()}`;
@@ -497,35 +708,61 @@
         function loadSelectedGraph() {
             const selectedId = document.getElementById("historySelect").value;
             if (!selectedId) return;
-            const history = JSON.parse(localStorage.getItem("kgraphHistory") || "[]");
-            const entry = history.find(e => e.id == selectedId);
+
+            const entry = JSON.parse(localStorage.getItem("kgraphHistory") || "[]")
+                .find(e => e.id == selectedId);
+
             if (!entry) return;
+
+            // Load the graph
             drawGraph(entry.graphData);
+
+            // Load the triple table
+            const tripleTableDiv = document.getElementById("tripleTable");
+            const doneBtn = document.getElementById("doneBtn");
+            tripleTableDiv.innerHTML =
+                `<table><tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>` +
+                entry.triples.map((t, i) => `
+            <tr>
+                <td>${t.subject}</td>
+                <td><select data-row="${i}">${predicates.map(p =>
+                    `<option value="${p}" ${p === t.predicate ? "selected" : ""}>${p}</option>`).join("")}</select></td>
+                <td>${t.object}</td>
+            </tr>
+        `).join("") +
+                `</table>`;
+
+            // Enable the Done button so user can rebuild graph if they want
+            doneBtn.disabled = false;
+
+            // Store current graph filename for future edits
+            filename = entry.filename;
         }
+
 
         function updateHeaderDropdowns() {
-            const subjectFile = document.getElementById("subjectFileSelect").value;
-            const objectFile = document.getElementById("objectFileSelect").value;
-
+            const sFile = document.getElementById("subjectFileSelect").value;
+            const oFile = document.getElementById("objectFileSelect").value;
             const subjectSel = document.getElementById("subjectSelect");
             const objectSel = document.getElementById("objectSelect");
+            subjectSel.disabled = objectSel.disabled = true;
+            subjectSel.innerHTML = objectSel.innerHTML = "";
 
-            subjectSel.innerHTML = "";
-            objectSel.innerHTML = "";
-
-            const subjectHeaders = window.uploadedFileInfo.find(f => f.filename === subjectFile)?.headers || [];
-            const objectHeaders = window.uploadedFileInfo.find(f => f.filename === objectFile)?.headers || [];
-
-            subjectHeaders.forEach(h => {
-                subjectSel.innerHTML += `<option value="${h}">${h}</option>`;
-            });
-            objectHeaders.forEach(h => {
-                objectSel.innerHTML += `<option value="${h}">${h}</option>`;
+            (window.uploadedFileInfo || []).forEach(f => {
+                if (f.filename === sFile) {
+                    f.headers.forEach(h => subjectSel.innerHTML += `<option value="${h}">${h}</option>`);
+                    subjectSel.disabled = false;
+                }
+                if (f.filename === oFile) {
+                    f.headers.forEach(h => objectSel.innerHTML += `<option value="${h}">${h}</option>`);
+                    objectSel.disabled = false;
+                }
             });
         }
 
-
-        window.onload = () => populateHistoryDropdown();
+        window.onload = () => {
+            populateHistoryDropdown();
+        };
     </script>
 </body>
 
