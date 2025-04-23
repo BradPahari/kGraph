@@ -17,21 +17,11 @@
 
         .container {
             max-width: 1400px;
-            max-width: 1400px;
             margin: 0 auto;
             padding: 30px;
             background-color: #fff;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            display: flex;
-            gap: 30px;
-        }
-
-        .main-content {
-            flex: 1;
-            min-width: 0;
-            padding-left: 30px;
-            border-left: 1px solid #e2e8f0;
             display: flex;
             gap: 30px;
         }
@@ -48,40 +38,14 @@
             margin-bottom: 25px;
             font-size: 24px;
             font-weight: 600;
-            font-size: 24px;
-            font-weight: 600;
         }
 
         .upload-section {
             border: 2px dashed #2563eb;
             padding: 100px 20px;
-            padding: 100px 20px;
             text-align: center;
             background-color: #eff6ff;
             border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-            margin-bottom: 18px;
-        }
-
-        .upload-section p {
-            margin: 0;
-            margin-bottom: 12px;
-        }
-
-        .icon-img {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .icon-img img {
-            width: 50px;
-            height: 50px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -111,48 +75,7 @@
             color: #2563eb;
             cursor: pointer;
             font-size: 16px;
-            font-size: 16px;
             font-weight: 500;
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-
-        .custom-upload-button:hover {
-            color: #1d4ed8;
-        }
-
-        .file-uploaded {
-            background-color: #fff;
-            display: flex;
-            justify-content: space-between;
-            padding: 8px;
-            border-radius: 8px;
-            border: 1px solid #d1d5db;
-            gap: 30px;
-            margin-bottom: 8px;
-        }
-
-        .file-name {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .file-uploaded button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 4px;
-            transition: opacity 0.2s ease;
-        }
-
-        .file-name button:hover {
-            opacity: 0.8;
-        }
-
-        .file-actions {
-            display: flex;
-            gap: 8px;
             text-decoration: none;
             transition: color 0.2s ease;
         }
@@ -216,41 +139,8 @@
         .dropdowns .form-group.file-group {
             flex: 1;
             min-width: calc(50% - 5px);
-            margin-bottom: 18px;
         }
 
-        .dropdowns .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            position: relative;
-        }
-
-        .dropdowns .form-group.file-group {
-            flex: 1;
-            min-width: calc(50% - 5px);
-        }
-
-        .dropdowns .form-group.column-group {
-            flex: 1;
-        }
-
-        .dropdowns .form-group.object-column {
-            min-width: calc(50% - 5px);
-        }
-
-        .dropdowns #generateBtn {
-            min-width: calc(50% - 5px);
-            margin-top: 24px;
-        }
-
-        .dropdowns label {
-            font-size: 14px;
-            font-weight: 500;
-            color: #374151;
-        }
-
-        .dropdowns select {
         .dropdowns .form-group.column-group {
             flex: 1;
         }
@@ -304,36 +194,6 @@
             background-color: #f3f4f6;
             cursor: not-allowed;
             opacity: 0.7;
-            border: 1px solid #d1d5db;
-            background-color: white;
-            color: #374151;
-            cursor: pointer;
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            padding-right: 32px;
-            transition: all 0.2s ease;
-            min-height: 42px;
-            width: 100%;
-        }
-
-        .dropdowns select:hover {
-            border-color: #2563eb;
-        }
-
-        .dropdowns select:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
-        }
-
-        .dropdowns select:disabled {
-            background-color: #f3f4f6;
-            cursor: not-allowed;
-            opacity: 0.7;
         }
 
         #generateBtn,
@@ -345,37 +205,7 @@
             border: none;
             cursor: pointer;
             padding: 14px 22px;
-        #doneBtn,
-        #uploadAllBtn,
-        .btn {
-            background-color: #2563eb;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            padding: 14px 22px;
             font-size: 14px;
-            font-weight: 500;
-            color: #fff;
-            transition: all 0.3s ease;
-        }
-
-        #generateBtn:hover,
-        #doneBtn:hover,
-        #uploadAllBtn:hover,
-        .btn:hover {
-            background-color: #1d4ed8;
-        }
-
-        #generateBtn:disabled,
-        #doneBtn:disabled,
-        #uploadAllBtn:disabled,
-        .btn:disabled {
-            background-color: #93c5fd;
-            cursor: not-allowed;
-        }
-
-        .mb {
-            margin-bottom: 18px !important;
             font-weight: 500;
             color: #fff;
             transition: all 0.3s ease;
@@ -428,8 +258,6 @@
             background: white;
             border-radius: 8px;
             overflow: hidden;
-            border-radius: 8px;
-            overflow: hidden;
         }
 
         th,
@@ -437,12 +265,10 @@
             border: 1px solid #ddd;
             padding: 10px;
             text-align: left;
-            text-align: left;
         }
 
         th {
             background: #f9f9f9;
-            font-weight: 600;
             font-weight: 600;
         }
 
@@ -453,7 +279,6 @@
             border: 2px dashed #2563eb;
             border-radius: 8px;
             background-color: #fff;
-            background-color: #fff;
         }
 
         #infoBox {
@@ -462,8 +287,6 @@
             border: 1px dashed #2563eb;
             background-color: #f0f7ff;
             font-family: monospace;
-            border-radius: 6px;
-            white-space: pre-wrap;
             border-radius: 6px;
             white-space: pre-wrap;
         }
@@ -482,14 +305,7 @@
             position: absolute;
             right: 18px;
             top: 18px;
-            right: 18px;
-            top: 18px;
             z-index: 10;
-            transition: background-color 0.3s ease;
-        }
-
-        #downloadButton:hover {
-            background-color: #1d4ed8;
             transition: background-color 0.3s ease;
         }
 
@@ -518,69 +334,8 @@
             height: calc(100vh - 60px);
             position: sticky;
             top: 30px;
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f8fafc;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
         }
 
-        aside {
-            width: 300px;
-            background-color: #f8fafc;
-            border-right: 1px solid #e2e8f0;
-            padding: 20px;
-            overflow-y: auto;
-            height: calc(100vh - 60px);
-            position: sticky;
-            top: 30px;
-        }
-
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .history-header h3 {
-            margin: 0;
-            color: #1e293b;
-            font-size: 18px;
-        }
-
-        .history-item {
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            background-color: white;
-            border: 1px solid #e2e8f0;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .history-item:hover,
-        .history-item.active {
-            background-color: #eff6ff;
-            border-color: #2563eb;
-        }
-
-        .history-item-title {
-            font-weight: 500;
-            color: #1e293b;
-            margin-bottom: 4px;
-            font-size: 14px;
-        }
-
-        .history-item-date {
-            font-size: 12px;
-            color: #64748b;
-        }
-
-        .close-history {
-            display: none;
         .history-header {
             display: flex;
             justify-content: space-between;
@@ -737,7 +492,7 @@
                     </a>
                 </p>
                 <p id="formatMessage" style="margin: 5px 0 0px; font-size: 12px; color: #666">
-                    You can upload upto 5 files max (Supported format: .csv files only)
+                    You can only upload upto 5 file max (supported format: .csv files only)
                 </p>
                 <div id="selectedFilesList"></div>
                 <button id="uploadAllBtn" onclick="uploadSelectedFiles()" disabled style=" padding: 10px 16px; font-size: 14px; border-radius: 6px; background-color: #2563eb; color: white; border: none; cursor: pointer;">
@@ -769,17 +524,10 @@
 
             <div id="messageBox"></div>
             <div id="errorBox"></div>
-            <div id="messageBox"></div>
-            <div id="errorBox"></div>
 
             <div id="tripleTable" class="mb"></div>
             <button id="doneBtn" onclick="submitTriples()" disabled style="display: none;">Done (Build Graph)</button>
 
-            <div class="graph-wrapper">
-                <button id="downloadButton" onclick="downloadGraphImage()"></button>
-                <div id="graph"></div>
-                <div id="infoBox">Click a node or edge to see more details.</div>
-            </div>
             <div class="graph-wrapper">
                 <button id="downloadButton" onclick="downloadGraphImage()"></button>
                 <div id="graph"></div>
@@ -918,8 +666,10 @@
                 window.uploadedFileInfo = data.files;
                 filename = data.files[0].filename;
 
+                // Populate file selection dropdowns
                 const subjectFileSelect = document.getElementById("subjectFileSelect");
                 const objectFileSelect = document.getElementById("objectFileSelect");
+
                 subjectFileSelect.innerHTML = "";
                 objectFileSelect.innerHTML = "";
 
@@ -929,9 +679,11 @@
                 // Only add successfully uploaded files to dropdowns
                 data.files.forEach(file => {
                     const shortName = file.filename.split("_").slice(1).join("_");
-                    const opt = `<option value="${file.filename}">${shortName}</option>`;
-                    subjectFileSelect.innerHTML += opt;
-                    objectFileSelect.innerHTML += opt;
+                    window.uploadedFileMap[shortName] = file.filename;
+
+                    const option = `<option value="${file.filename}">${shortName}</option>`;
+                    subjectFileSelect.innerHTML += option;
+                    objectFileSelect.innerHTML += option;
                 });
 
                 // Trigger header dropdown population
@@ -944,7 +696,7 @@
                 messageBox.innerText = "Files uploaded successfully.";
             } catch (err) {
                 errorBox.style.display = "block";
-                errorBox.innerText = err.message || "An error occurred during upload.";
+                errorBox.innerText = "An error occurred during upload.";
             }
         }
 
@@ -966,7 +718,10 @@
                     object: objectCol
                 })
             });
+
             const data = await res.json();
+            const table = document.getElementById("tripleTable");
+
             if (!res.ok) {
                 document.getElementById("errorBox").style.display = "block";
                 document.getElementById("errorBox").innerText = data.error || "Triple prep failed.";
@@ -979,13 +734,11 @@
 
             table.innerHTML = `<table><tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>` +
                 data.triples.map((t, i) => `
-                    <tr>
-                        <td>${t.subject}</td>
-                        <td><select data-row="${i}">${predicates.map(p => `<option value="${p}">${p}</option>`).join("")}</select></td>
-                        <td>${t.object}</td>
-                    </tr>
-                `).join("") +
-                `</table>`;
+      <tr>
+        <td>${t.subject}</td>
+        <td><select data-row="${i}">${predicates.map(p => `<option value="${p}">${p}</option>`).join("")}</select></td>
+        <td>${t.object}</td>
+      </tr>`).join("") + `</table>`;
         }
 
         async function submitTriples() {
@@ -1010,6 +763,7 @@
                     filename
                 })
             });
+
             const data = await res.json();
             allNodes = data.nodes;
             allEdges = data.edges;
@@ -1023,7 +777,10 @@
 
         function drawGraph(graphData) {
             const container = document.getElementById("graph");
-            const data = { nodes: new vis.DataSet(graphData.nodes), edges: new vis.DataSet(graphData.edges) };
+            const data = {
+                nodes: new vis.DataSet(graphData.nodes),
+                edges: new vis.DataSet(graphData.edges)
+            };
             const options = {
                 layout: {
                     improvedLayout: true
@@ -1077,9 +834,10 @@
 
         function saveToLocalHistory(entry) {
             const history = JSON.parse(localStorage.getItem("kgraphHistory") || "[]");
+            const cleanName = filename.includes("_") ? filename.split("_").slice(1).join("_") : filename;
             entry.id = Date.now();
             entry.timestamp = new Date().toISOString();
-            entry.filename = cleanFilename(entry.filename || filename);
+            entry.filename = cleanName;
             history.push(entry);
             localStorage.setItem("kgraphHistory", JSON.stringify(history));
             populateHistoryDropdown();
@@ -1115,53 +873,30 @@
             event.currentTarget.classList.add('active');
 
             drawGraph(entry.graphData);
-
-            // Load the triple table
-            const tripleTableDiv = document.getElementById("tripleTable");
-            const doneBtn = document.getElementById("doneBtn");
-            tripleTableDiv.innerHTML =
-                `<table><tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>` +
-                entry.triples.map((t, i) => `
-            <tr>
-                <td>${t.subject}</td>
-                <td><select data-row="${i}">${predicates.map(p =>
-                    `<option value="${p}" ${p === t.predicate ? "selected" : ""}>${p}</option>`).join("")}</select></td>
-                <td>${t.object}</td>
-            </tr>
-        `).join("") +
-                `</table>`;
-
-            // Enable the Done button so user can rebuild graph if they want
-            doneBtn.disabled = false;
-
-            // Store current graph filename for future edits
-            filename = entry.filename;
         }
 
-
         function updateHeaderDropdowns() {
-            const sFile = document.getElementById("subjectFileSelect").value;
-            const oFile = document.getElementById("objectFileSelect").value;
+            const subjectFile = document.getElementById("subjectFileSelect").value;
+            const objectFile = document.getElementById("objectFileSelect").value;
+
             const subjectSel = document.getElementById("subjectSelect");
             const objectSel = document.getElementById("objectSelect");
-            subjectSel.disabled = objectSel.disabled = true;
-            subjectSel.innerHTML = objectSel.innerHTML = "";
 
-            (window.uploadedFileInfo || []).forEach(f => {
-                if (f.filename === sFile) {
-                    f.headers.forEach(h => subjectSel.innerHTML += `<option value="${h}">${h}</option>`);
-                    subjectSel.disabled = false;
-                }
-                if (f.filename === oFile) {
-                    f.headers.forEach(h => objectSel.innerHTML += `<option value="${h}">${h}</option>`);
-                    objectSel.disabled = false;
-                }
+            subjectSel.innerHTML = "";
+            objectSel.innerHTML = "";
+
+            const subjectHeaders = window.uploadedFileInfo.find(f => f.filename === subjectFile)?.headers || [];
+            const objectHeaders = window.uploadedFileInfo.find(f => f.filename === objectFile)?.headers || [];
+
+            subjectHeaders.forEach(h => {
+                subjectSel.innerHTML += `<option value="${h}">${h}</option>`;
+            });
+            objectHeaders.forEach(h => {
+                objectSel.innerHTML += `<option value="${h}">${h}</option>`;
             });
         }
 
-        window.onload = () => {
-            populateHistoryDropdown();
-        };
+        window.onload = () => populateHistoryDropdown();
     </script>
 </body>
 
