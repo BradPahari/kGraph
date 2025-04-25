@@ -412,77 +412,92 @@
 </head>
 
 <body>
-    <div class="container">
-        <aside id="historySidebar">
-            <div class="history-header">
-                <h3>Graph History</h3>
-            </div>
-            <div id="historyList">
-                <div class="history-bar">
-                    <div class="history-list-container">
-                        <strong>Load from History:</strong>
-                        <div id="historyList" class="history-scroll-list"></div>
+    <div id="loginScreen"
+        style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
+        <h2>Enter your username to continue</h2>
+        <input type="text" id="usernameInput" placeholder="Username"
+            style="padding: 10px; font-size: 16px; width: 250px; margin-bottom: 10px;" />
+        <button onclick="handleLogin()" style="padding: 10px 20px; font-size: 16px;">Enter</button>
+    </div>
+
+    <div id="mainApp" style="display: none;">
+        <div style="text-align: right; padding: 10px 20px;">
+            <span id="currentUserLabel" style="margin-right: 12px; font-weight: bold;"></span>
+            <button onclick="logoutUser()" style="padding: 6px 12px; font-size: 14px;">Log out</button>
+        </div>
+
+        <div class="container">
+            <aside id="historySidebar">
+                <div class="history-header">
+                    <h3>Graph History</h3>
+                </div>
+                <div id="historyList">
+                    <div class="history-bar">
+                        <div class="history-list-container">
+                            <strong>Load from History:</strong>
+                            <div id="historyList" class="history-scroll-list"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </aside>
+            </aside>
 
-        <div class="main-content">
-            <h2>Upload CSV to Create a Knowledge Graph</h2>
-            <div class="upload-section">
-                <div class="icon-img">
-                    <svg width="50" height="50" viewBox="0 0 71 53" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- SVG content omitted for brevity -->
-                    </svg>
+            <div class="main-content">
+                <h2>Upload CSV to Create a Knowledge Graph</h2>
+                <div class="upload-section">
+                    <div class="icon-img">
+                        <svg width="50" height="50" viewBox="0 0 71 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- SVG content omitted for brevity -->
+                        </svg>
+                    </div>
+                    <input type="file" id="csvFile" accept=".csv" multiple onchange="handleFileSelect()" />
+                    <p style="margin: 0">
+                        Browse for your CSV files
+                        <a class="custom-upload-button" onclick="document.getElementById('csvFile').click()">
+                            Select Files
+                        </a>
+                    </p>
+                    <p id="formatMessage" style="margin: 5px 0 0px; font-size: 12px; color: #666">
+                        You can add up to 5 files max (Supported format: .csv files only)
+                    </p>
+                    <div id="selectedFilesList"></div>
+                    <button id="uploadAllBtn" onclick="uploadCSV(selectedFiles)" disabled>
+                        Upload Selected Files
+                    </button>
                 </div>
-                <input type="file" id="csvFile" accept=".csv" multiple onchange="handleFileSelect()" />
-                <p style="margin: 0">
-                    Browse for your CSV files
-                    <a class="custom-upload-button" onclick="document.getElementById('csvFile').click()">
-                        Select Files
-                    </a>
-                </p>
-                <p id="formatMessage" style="margin: 5px 0 0px; font-size: 12px; color: #666">
-                    You can add up to 5 files max (Supported format: .csv files only)
-                </p>
-                <div id="selectedFilesList"></div>
-                <button id="uploadAllBtn" onclick="uploadCSV(selectedFiles)" disabled>
-                    Upload Selected Files
-                </button>
-            </div>
 
-            <div class="dropdowns">
-                <div class="form-group file-group">
-                    <label>Subject File:</label>
-                    <select id="subjectFileSelect" onchange="updateHeaderDropdowns()"></select>
+                <div class="dropdowns">
+                    <div class="form-group file-group">
+                        <label>Subject File:</label>
+                        <select id="subjectFileSelect" onchange="updateHeaderDropdowns()"></select>
+                    </div>
+                    <div class="form-group file-group">
+                        <label>Object File:</label>
+                        <select id="objectFileSelect" onchange="updateHeaderDropdowns()"></select>
+                    </div>
+                    <div class="form-group column-group subject-column">
+                        <label>Subject Column:</label>
+                        <select id="subjectSelect" disabled></select>
+                    </div>
+                    <div class="form-group column-group object-column">
+                        <label>Object Column:</label>
+                        <select id="objectSelect" disabled></select>
+                    </div>
+                    <div style="text-align: end;">
+                        <button id="generateBtn" onclick="generateTriples()" disabled>Generate Triple Table</button>
+                    </div>
                 </div>
-                <div class="form-group file-group">
-                    <label>Object File:</label>
-                    <select id="objectFileSelect" onchange="updateHeaderDropdowns()"></select>
-                </div>
-                <div class="form-group column-group subject-column">
-                    <label>Subject Column:</label>
-                    <select id="subjectSelect" disabled></select>
-                </div>
-                <div class="form-group column-group object-column">
-                    <label>Object Column:</label>
-                    <select id="objectSelect" disabled></select>
-                </div>
-                <div style="text-align: end;">
-                    <button id="generateBtn" onclick="generateTriples()" disabled>Generate Triple Table</button>
-                </div>
-            </div>
 
-            <div id="messageBox"></div>
-            <div id="errorBox"></div>
+                <div id="messageBox"></div>
+                <div id="errorBox"></div>
 
-            <div id="tripleTable" class="mb"></div>
-            <button id="doneBtn" onclick="submitTriples()" disabled>Done (Build Graph)</button>
+                <div id="tripleTable" class="mb"></div>
+                <button id="doneBtn" onclick="submitTriples()" disabled>Done (Build Graph)</button>
 
-            <div class="graph-wrapper">
-                <button id="downloadButton" onclick="downloadGraphImage()"></button>
-                <div id="graph"></div>
-                <div id="infoBox">Click a node or edge to see more details.</div>
+                <div class="graph-wrapper">
+                    <button id="downloadButton" onclick="downloadGraphImage()"></button>
+                    <div id="graph"></div>
+                    <div id="infoBox">Click a node or edge to see more details.</div>
+                </div>
             </div>
         </div>
     </div>
@@ -710,22 +725,30 @@
         }
 
         function saveToLocalHistory(entry) {
-            const history = JSON.parse(localStorage.getItem("kgraphHistory") || "[]");
+            const user = localStorage.getItem("currentUser") || "guest";
+            const key = `kgraphHistory_${user}`;
+            const history = JSON.parse(localStorage.getItem(key) || "[]");
+
             entry.id = Date.now();
             entry.timestamp = new Date().toISOString();
             entry.filename = cleanFilename(entry.filename || filename);
             history.push(entry);
-            localStorage.setItem("kgraphHistory", JSON.stringify(history));
-            populateHistoryDropdown();
+
+            localStorage.setItem(key, JSON.stringify(history));
+            populateHistoryList();  // refresh list for this user
         }
 
-        function populateHistoryList() {
-            const historyList = document.getElementById("historyList");
-            const history = JSON.parse(localStorage.getItem("kgraphHistory") || "[]")
-                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-                .slice(0, 10); // most recent 10
 
-            historyList.innerHTML = ""; // clear old entries
+        function populateHistoryList() {
+            const user = localStorage.getItem("currentUser") || "guest";
+            const key = `kgraphHistory_${user}`;
+            const historyList = document.getElementById("historyList");
+
+            const history = JSON.parse(localStorage.getItem(key) || "[]")
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                .slice(0, 10);
+
+            historyList.innerHTML = "";
 
             history.forEach(entry => {
                 const div = document.createElement("div");
@@ -738,6 +761,7 @@
                 historyList.appendChild(div);
             });
         }
+
 
 
         function loadGraphEntry(entry) {
@@ -786,9 +810,41 @@
             });
         }
 
-        window.onload = () => {
+        function handleLogin() {
+            const username = document.getElementById("usernameInput").value.trim();
+            if (!username) {
+                alert("Please enter a username.");
+                return;
+            }
+
+            localStorage.setItem("currentUser", username);
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("mainApp").style.display = "block";
+            document.getElementById("currentUserLabel").innerText = `Logged in as: ${username}`;
+
             populateHistoryList();
+        }
+
+        function logoutUser() {
+            localStorage.removeItem("currentUser");
+            document.getElementById("mainApp").style.display = "none";
+            document.getElementById("loginScreen").style.display = "flex";
+        }
+
+
+
+
+        window.onload = () => {
+            const savedUser = localStorage.getItem("currentUser");
+            if (savedUser) {
+                document.getElementById("loginScreen").style.display = "none";
+                document.getElementById("mainApp").style.display = "block";
+                document.getElementById("currentUserLabel").innerText = `Logged in as: ${savedUser}`;
+                populateHistoryList();
+            }
         };
+
+
     </script>
 </body>
 
