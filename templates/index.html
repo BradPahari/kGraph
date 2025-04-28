@@ -826,13 +826,43 @@
         }
 
         function logoutUser() {
+            // Remove username
             localStorage.removeItem("currentUser");
+
+            // Hide app, show login screen
             document.getElementById("mainApp").style.display = "none";
             document.getElementById("loginScreen").style.display = "flex";
+
+            // Clear file uploads
+            selectedFiles = [];
+            document.getElementById("selectedFilesList").innerHTML = "";
+
+            // Clear triple table
+            document.getElementById("tripleTable").innerHTML = "";
+
+            // Clear dropdowns
+            document.getElementById("subjectFileSelect").innerHTML = "";
+            document.getElementById("objectFileSelect").innerHTML = "";
+            document.getElementById("subjectSelect").innerHTML = "";
+            document.getElementById("objectSelect").innerHTML = "";
+
+            document.getElementById("subjectSelect").disabled = true;
+            document.getElementById("objectSelect").disabled = true;
+            document.getElementById("generateBtn").disabled = true;
+            document.getElementById("doneBtn").disabled = true;
+
+            // Clear graph
+            const container = document.getElementById("graph");
+            container.innerHTML = "";
+            document.getElementById("infoBox").innerText = "Click a node or edge to see more details.";
+
+            // Reset file input
+            document.getElementById("csvFile").value = "";
+
+            // Clear success and error messages ✅
+            document.getElementById("messageBox").style.display = "none";
+            document.getElementById("errorBox").style.display = "none";
         }
-
-
-
 
         window.onload = () => {
             const savedUser = localStorage.getItem("currentUser");
