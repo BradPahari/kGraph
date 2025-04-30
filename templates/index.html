@@ -7,6 +7,8 @@
     <script src="https://unpkg.com/vis-network@9.1.2/standalone/umd/vis-network.min.js"></script>
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@uswds/uswds@latest/dist/css/uswds.min.css">
+
     <style>
         body {
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -25,6 +27,26 @@
             display: flex;
             gap: 30px;
         }
+
+        .header-main {
+            background-color: #fff;
+            margin-bottom: 22px;
+        }
+        .header-main .container {
+           background-color: transparent;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: none;
+            padding: 18px 50px;
+            max-width: unset;
+            border-top: 1px solid #e2e8f0;
+
+        }
+        .header-main .logo{
+            width: 55px;
+        }
+
+        
 
         .main-content {
             flex: 1;
@@ -129,38 +151,39 @@
             margin-bottom: 18px;
         }
 
-        .dropdowns .form-group {
+        .form-group {
             display: flex;
             flex-direction: column;
             gap: 14px;
             position: relative;
         }
 
-        .dropdowns .form-group.file-group {
+        .form-group.file-group {
             flex: 1;
             min-width: calc(50% - 5px);
         }
 
-        .dropdowns .form-group.column-group {
+        .form-group.column-group {
             flex: 1;
         }
 
-        .dropdowns .form-group.object-column {
+        .form-group.object-column {
             min-width: calc(50% - 5px);
         }
 
-        .dropdowns #generateBtn {
+        #generateBtn {
             min-width: calc(50% - 5px);
             margin-top: 24px;
         }
 
-        .dropdowns label {
+        label {
             font-size: 14px;
             font-weight: 500;
             color: #374151;
         }
 
-        .dropdowns select {
+        select,
+        input {
             padding: 8px 12px;
             font-size: 14px;
             border-radius: 6px;
@@ -180,17 +203,29 @@
             width: 100%;
         }
 
-        .dropdowns select:hover {
+        input {
+            background-image: none;
+            min-height: 32px;
+            width: 100%;
+            padding: 10px 12px;
+            cursor: text;
+        }
+
+        input:hover,
+        select:hover {
             border-color: #2563eb;
         }
 
-        .dropdowns select:focus {
+        input:focus,
+        select:focus {
             outline: none;
             border-color: #2563eb;
             box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+            outline: none !important;
         }
 
-        .dropdowns select:disabled {
+        input:disabled,
+        select:disabled {
             background-color: #f3f4f6;
             cursor: not-allowed;
             opacity: 0.7;
@@ -408,23 +443,160 @@
         .close-history {
             display: none;
         }
+
+        #loginScreen {
+            align-content: center;
+            height: calc(100vh - 48px);
+        }
+
+        #loginScreen .container {
+            background-color: transparent !important;
+            box-shadow: none !important;
+
+        }
+
+        .logo {
+            width: 75px;
+
+            img {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+        }
+
+        .login-box {
+            background: #fff;
+            padding: 50px 35px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 28px;
+            min-width: 500px;
+
+        }
+
+        .login-box input {
+            width: calc(100% - 24px);
+        }
+
+        .login-box h2 {
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .usa-banner {
+            background-color: #fff;
+            padding: 12px 24px;
+        }
+
+        .usa-banner__header {
+            margin: 0px !important;
+        }
+
+        .usa-banner__header-text {
+            font-size: 15px !important;
+        }
+
+        .usa-banner__inner,
+        .usa-banner__header--expanded .usa-banner__inner,
+        .usa-banner__content {
+            margin: unset;
+        }
     </style>
 </head>
 
 <body>
-    <div id="loginScreen"
-        style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
-        <h2>Enter your username to continue</h2>
-        <input type="text" id="usernameInput" placeholder="Username"
-            style="padding: 10px; font-size: 16px; width: 250px; margin-bottom: 10px;" />
-        <button onclick="handleLogin()" style="padding: 10px 20px; font-size: 16px;">Enter</button>
+    <section class="usa-banner" aria-label="Official website of the Unitezd States government">
+        <div class="usa-accordion">
+            <header class="usa-banner__header">
+                <div class="usa-banner__inner">
+                    <div class="grid-col-auto">
+                        <img
+                            class="usa-banner__header-flag"
+                            src="https://designsystem.digital.gov/assets/img/us_flag_small.png"
+                            alt="U.S. flag" />
+                    </div>
+                    <div class="grid-col-fill tablet:grid-col-auto">
+                        <p class="usa-banner__header-text">An official website of the United States government</p>
+                        <p class="usa-banner__header-action">Here’s how you know</p>
+                    </div>
+                    <button
+                        type="button"
+                        class="usa-accordion__button usa-banner__button"
+                        aria-expanded="false"
+                        aria-controls="gov-banner">
+                        <span class="usa-banner__button-text">Here’s how you know</span>
+                    </button>
+                </div>
+            </header>
+            <div class="usa-banner__content usa-accordion__content" id="gov-banner">
+                <div class="grid-row grid-gap-lg">
+                    <div class="usa-banner__guidance tablet:grid-col-6">
+                        <img
+                            class="usa-banner__icon usa-media-block__img"
+                            src="https://designsystem.digital.gov/assets/img/icon-dot-gov.svg"
+                            alt=""
+                            aria-hidden="true" />
+                        <div class="usa-media-block__body">
+                            <p>
+                                <strong>Official websites use .gov</strong><br />
+                                A <strong>.gov</strong> website belongs to an official government organization in the United States.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="usa-banner__guidance tablet:grid-col-6">
+                        <img
+                            class="usa-banner__icon usa-media-block__img"
+                            src="https://designsystem.digital.gov/assets/img/icon-https.svg"
+                            alt=""
+                            aria-hidden="true" />
+                        <div class="usa-media-block__body">
+                            <p>
+                                <strong>Secure .gov websites use HTTPS</strong><br />
+                                A <strong>lock</strong> (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="52" height="64" viewBox="0 0 52 64"
+                                    class="usa-banner__lock-image" aria-hidden="true" focusable="false">
+                                    <path fill="#000" fill-rule="evenodd"
+                                        d="M26 0c10.493 0 19 8.507 19 19v9h3a4 4 0 0 1 4 4v28a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V32a4 4 0 0 1 4-4h3v-9C7 8.507 15.507 0 26 0zm0 8c-5.979 0-10.843 4.77-10.996 10.712L15 19v9h22v-9c0-6.075-4.925-11-11-11z" />
+                                </svg>
+                                ) or <strong>https://</strong> means you’ve safely connected to the .gov website. Share sensitive information only on official, secure websites.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div id="loginScreen">
+        <div class="container flex flex-column flex-align-center">
+            <div class="login-box">
+                <div class="logo">
+                    <img src="static/images/logo.svg" alt="logo" style="width: 100%; height: 100%;">
+                </div>
+                <h2>Enter your username to continue</h2>
+                <input type="text" id="usernameInput" placeholder="Username" />
+                <button class="btn" style="width: 100%;" onclick="handleLogin()">Enter</button>
+            </div>
+        </div>
     </div>
 
     <div id="mainApp" style="display: none;">
-        <div style="text-align: right; padding: 10px 20px;">
-            <span id="currentUserLabel" style="margin-right: 12px; font-weight: bold;"></span>
-            <button onclick="logoutUser()" style="padding: 6px 12px; font-size: 14px;">Log out</button>
-        </div>
+        <header class="header-main">
+            <div class="container">
+                <div class="logo">
+                    <img src="static/images/logo.svg" alt="logo" style="width: 100%; height: 100%;">
+                </div>
+                <div>
+                <span id="currentUserLabel" style="margin-right: 12px; font-weight: bold;"></span>
+                <button onclick="logoutUser()" style="padding: 8px 12px; font-size: 14px; background-color: #dc2626; color: #fff;" class="btn danger">Log out</button>
+                </div>
+            </div>
+        </header>
 
         <div class="container">
             <aside id="historySidebar">
@@ -583,7 +755,10 @@
             selectedFiles.forEach(f => formData.append("files", f));
 
             try {
-                const res = await fetch("/upload", { method: "POST", body: formData });
+                const res = await fetch("/upload", {
+                    method: "POST",
+                    body: formData
+                });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error || "Upload failed.");
 
@@ -622,8 +797,15 @@
 
             const res = await fetch("/prepare-triples", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ subject_file: subjectFile, object_file: objectFile, subject: subjectCol, object: objectCol })
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    subject_file: subjectFile,
+                    object_file: objectFile,
+                    subject: subjectCol,
+                    object: objectCol
+                })
             });
             const data = await res.json();
             if (!res.ok) {
@@ -664,14 +846,23 @@
 
             const res = await fetch("/build-graph", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ triples, filename })
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    triples,
+                    filename
+                })
             });
             const data = await res.json();
             allNodes = data.nodes;
             allEdges = data.edges;
             drawGraph(data);
-            saveToLocalHistory({ filename, triples, graphData: data });
+            saveToLocalHistory({
+                filename,
+                triples,
+                graphData: data
+            });
         }
 
         function cleanFilename(f) {
@@ -680,19 +871,36 @@
 
         function drawGraph(graphData) {
             const container = document.getElementById("graph");
-            const data = { nodes: new vis.DataSet(graphData.nodes), edges: new vis.DataSet(graphData.edges) };
+            const data = {
+                nodes: new vis.DataSet(graphData.nodes),
+                edges: new vis.DataSet(graphData.edges)
+            };
             const options = {
-                layout: { improvedLayout: true },
+                layout: {
+                    improvedLayout: true
+                },
                 physics: {
                     stabilization: true,
-                    barnesHut: { gravitationalConstant: -5000, centralGravity: 0.3, springLength: 150, springConstant: 0.04 }
+                    barnesHut: {
+                        gravitationalConstant: -5000,
+                        centralGravity: 0.3,
+                        springLength: 150,
+                        springConstant: 0.04
+                    }
                 },
-                edges: { arrows: "to" },
-                interaction: { hover: true, tooltipDelay: 100, navigationButtons: true, selectable: true }
+                edges: {
+                    arrows: "to"
+                },
+                interaction: {
+                    hover: true,
+                    tooltipDelay: 100,
+                    navigationButtons: true,
+                    selectable: true
+                }
             };
             network = new vis.Network(container, data, options);
 
-            network.on("click", function (params) {
+            network.on("click", function(params) {
                 const infoBox = document.getElementById("infoBox");
                 const nodeId = params.nodes[0];
                 if (!nodeId) return (infoBox.innerText = "Click a node or edge to see more details.");
@@ -735,7 +943,7 @@
             history.push(entry);
 
             localStorage.setItem(key, JSON.stringify(history));
-            populateHistoryList();  // refresh list for this user
+            populateHistoryList(); // refresh list for this user
         }
 
 
@@ -826,13 +1034,43 @@
         }
 
         function logoutUser() {
+            // Remove username
             localStorage.removeItem("currentUser");
+
+            // Hide app, show login screen
             document.getElementById("mainApp").style.display = "none";
             document.getElementById("loginScreen").style.display = "flex";
+
+            // Clear file uploads
+            selectedFiles = [];
+            document.getElementById("selectedFilesList").innerHTML = "";
+
+            // Clear triple table
+            document.getElementById("tripleTable").innerHTML = "";
+
+            // Clear dropdowns
+            document.getElementById("subjectFileSelect").innerHTML = "";
+            document.getElementById("objectFileSelect").innerHTML = "";
+            document.getElementById("subjectSelect").innerHTML = "";
+            document.getElementById("objectSelect").innerHTML = "";
+
+            document.getElementById("subjectSelect").disabled = true;
+            document.getElementById("objectSelect").disabled = true;
+            document.getElementById("generateBtn").disabled = true;
+            document.getElementById("doneBtn").disabled = true;
+
+            // Clear graph
+            const container = document.getElementById("graph");
+            container.innerHTML = "";
+            document.getElementById("infoBox").innerText = "Click a node or edge to see more details.";
+
+            // Reset file input
+            document.getElementById("csvFile").value = "";
+
+            // Clear success and error messages ✅
+            document.getElementById("messageBox").style.display = "none";
+            document.getElementById("errorBox").style.display = "none";
         }
-
-
-
 
         window.onload = () => {
             const savedUser = localStorage.getItem("currentUser");
@@ -843,9 +1081,9 @@
                 populateHistoryList();
             }
         };
-
-
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/@uswds/uswds@latest/dist/js/uswds.min.js"></script>
+
 </body>
 
 </html>
