@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>CSV to Knowledge Graph</title>
+    <link rel="icon" type="image/png" href="/static/images/logo.svg">
     <script src="https://unpkg.com/vis-network@9.1.2/standalone/umd/vis-network.min.js"></script>
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css" />
@@ -32,8 +33,9 @@
             background-color: #fff;
             margin-bottom: 22px;
         }
+
         .header-main .container {
-           background-color: transparent;
+            background-color: transparent;
             align-items: center;
             justify-content: space-between;
             box-shadow: none;
@@ -42,11 +44,12 @@
             border-top: 1px solid #e2e8f0;
 
         }
-        .header-main .logo{
+
+        .header-main .logo {
             width: 55px;
         }
 
-        
+
 
         .main-content {
             flex: 1;
@@ -507,6 +510,22 @@
         .usa-banner__content {
             margin: unset;
         }
+
+        .history-filename {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .history-filename.expanded {
+            white-space: normal !important;
+            word-break: break-all;
+            overflow: visible;
+            text-overflow: unset;
+        }
     </style>
 </head>
 
@@ -523,14 +542,14 @@
                     </div>
                     <div class="grid-col-fill tablet:grid-col-auto">
                         <p class="usa-banner__header-text">An official website of the United States government</p>
-                        <p class="usa-banner__header-action">Here’s how you know</p>
+                        <p class="usa-banner__header-action">Here's how you know</p>
                     </div>
                     <button
                         type="button"
                         class="usa-accordion__button usa-banner__button"
                         aria-expanded="false"
                         aria-controls="gov-banner">
-                        <span class="usa-banner__button-text">Here’s how you know</span>
+                        <span class="usa-banner__button-text">Here's how you know</span>
                     </button>
                 </div>
             </header>
@@ -564,7 +583,7 @@
                                     <path fill="#000" fill-rule="evenodd"
                                         d="M26 0c10.493 0 19 8.507 19 19v9h3a4 4 0 0 1 4 4v28a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V32a4 4 0 0 1 4-4h3v-9C7 8.507 15.507 0 26 0zm0 8c-5.979 0-10.843 4.77-10.996 10.712L15 19v9h22v-9c0-6.075-4.925-11-11-11z" />
                                 </svg>
-                                ) or <strong>https://</strong> means you’ve safely connected to the .gov website. Share sensitive information only on official, secure websites.
+                                ) or <strong>https://</strong> means you've safely connected to the .gov website. Share sensitive information only on official, secure websites.
                             </p>
                         </div>
                     </div>
@@ -592,8 +611,8 @@
                     <img src="static/images/logo.svg" alt="logo" style="width: 100%; height: 100%;">
                 </div>
                 <div>
-                <span id="currentUserLabel" style="margin-right: 12px; font-weight: bold;"></span>
-                <button onclick="logoutUser()" style="padding: 8px 12px; font-size: 14px; background-color: #dc2626; color: #fff;" class="btn danger">Log out</button>
+                    <span id="currentUserLabel" style="margin-right: 12px; font-weight: bold;"></span>
+                    <button onclick="logoutUser()" style="padding: 8px 12px; font-size: 14px; background-color: #dc2626; color: #fff;" class="btn danger">Log out</button>
                 </div>
             </div>
         </header>
@@ -946,7 +965,6 @@
             populateHistoryList(); // refresh list for this user
         }
 
-
         function populateHistoryList() {
             const user = localStorage.getItem("currentUser") || "guest";
             const key = `kgraphHistory_${user}`;
@@ -962,15 +980,18 @@
                 const div = document.createElement("div");
                 div.className = "history-entry";
                 div.innerHTML = `
-            <div><strong>${entry.filename}</strong></div>
+            <div class="history-filename" title="${entry.filename}"><strong>${entry.filename}</strong></div>
             <div style="font-size: 12px; color: #555;">${new Date(entry.timestamp).toLocaleString()}</div>
         `;
+                const filenameDiv = div.querySelector('.history-filename');
+                filenameDiv.onclick = (e) => {
+                    e.stopPropagation(); // Prevent triggering the history entry click
+                    filenameDiv.classList.toggle('expanded');
+                };
                 div.onclick = () => loadGraphEntry(entry);
                 historyList.appendChild(div);
             });
         }
-
-
 
         function loadGraphEntry(entry) {
             // Load graph
@@ -995,8 +1016,6 @@
             doneBtn.disabled = false;
             filename = entry.filename;
         }
-
-
 
         function updateHeaderDropdowns() {
             const sFile = document.getElementById("subjectFileSelect").value;
