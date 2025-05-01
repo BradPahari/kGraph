@@ -1,737 +1,761 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8" />
-    <title>CSV to Knowledge Graph</title>
-    <link rel="icon" type="image/png" href="/static/images/logo.svg">
-    <script src="https://unpkg.com/vis-network@9.1.2/standalone/umd/vis-network.min.js"></script>
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@uswds/uswds@latest/dist/css/uswds.min.css">
-
-    <style>
-        body {
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 30px;
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            display: flex;
-            gap: 30px;
-        }
-
-        .header-main {
-            background-color: #fff;
-            margin-bottom: 22px;
-        }
-
-        .header-main .container {
-            background-color: transparent;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: none;
-            padding: 18px 50px;
-            max-width: unset;
-            border-top: 1px solid #e2e8f0;
-
-        }
-
-        .header-main .logo {
-            width: 55px;
-        }
-
-
-
-        .main-content {
-            flex: 1;
-            min-width: 0;
-            padding-left: 30px;
-            border-left: 1px solid #e2e8f0;
-        }
-
-        h2 {
-            color: #2c3e50;
-            margin-bottom: 25px;
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        .upload-section {
-            border: 2px dashed #2563eb;
-            padding: 100px 20px;
-            text-align: center;
-            background-color: #eff6ff;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-            margin-bottom: 18px;
-        }
-
-        .upload-section p {
-            margin: 0;
-            margin-bottom: 12px;
-        }
-
-        .icon-img {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .icon-img img {
-            width: 50px;
-            height: 50px;
-        }
-
-        .custom-upload-button {
-            color: #2563eb;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-
-        .custom-upload-button:hover {
-            color: #1d4ed8;
-        }
-
-        .file-uploaded {
-            background-color: #fff;
-            display: flex;
-            justify-content: space-between;
-            padding: 8px;
-            border-radius: 8px;
-            border: 1px solid #d1d5db;
-            gap: 30px;
-            margin-bottom: 8px;
-        }
-
-        .file-name {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .file-uploaded button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 4px;
-            transition: opacity 0.2s ease;
-        }
-
-        .file-name button:hover {
-            opacity: 0.8;
-        }
-
-        .file-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        #csvFile {
-            display: none;
-        }
-
-        .dropdowns {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 18px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            position: relative;
-        }
-
-        .form-group.file-group {
-            flex: 1;
-            min-width: calc(50% - 5px);
-        }
-
-        .form-group.column-group {
-            flex: 1;
-            min-width: calc(50% - 5px);
-        }
-
-        #generateBtn {
-            min-width: calc(50% - 5px);
-            margin-top: 24px;
-        }
-
-        label {
-            font-size: 14px;
-            font-weight: 500;
-            color: #374151;
-        }
-
-        select,
-        input {
-            padding: 8px 12px;
-            font-size: 14px;
-            border-radius: 6px;
-            border: 1px solid #d1d5db;
-            background-color: white;
-            color: #374151;
-            cursor: pointer;
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            padding-right: 32px;
-            transition: all 0.2s ease;
-            min-height: 42px;
-            width: 100%;
-        }
-
-        input {
-            background-image: none;
-            min-height: 32px;
-            width: 100%;
-            padding: 10px 12px;
-            cursor: text;
-        }
-
-        input:hover,
-        select:hover {
-            border-color: #2563eb;
-        }
-
-        input:focus,
-        select:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
-            outline: none !important;
-        }
-
-        input:disabled,
-        select:disabled {
-            background-color: #f3f4f6;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-        #generateBtn,
-        #doneBtn,
-        #uploadAllBtn,
-        .btn {
-            background-color: #2563eb;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            padding: 14px 22px;
-            font-size: 14px;
-            font-weight: 500;
-            color: #fff;
-            transition: all 0.3s ease;
-        }
-
-        #generateBtn:hover,
-        #doneBtn:hover,
-        #uploadAllBtn:hover,
-        .btn:hover {
-            background-color: #1d4ed8;
-        }
-
-        #generateBtn:disabled,
-        #doneBtn:disabled,
-        #uploadAllBtn:disabled,
-        .btn:disabled {
-            background-color: #93c5fd;
-            cursor: not-allowed;
-        }
-
-        .mb {
-            margin-bottom: 18px !important;
-        }
-
-        #messageBox,
-        #errorBox {
-            margin-top: 15px;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: 500;
-            display: none;
-        }
-
-        #messageBox {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        #errorBox {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background: #f9f9f9;
-            font-weight: 600;
-        }
-
-        #graph {
-            width: 100%;
-            height: 600px;
-            margin-top: 40px;
-            border: 2px dashed #2563eb;
-            border-radius: 8px;
-            background-color: #fff;
-        }
-
-        #infoBox {
-            margin-top: 10px;
-            padding: 12px;
-            border: 1px dashed #2563eb;
-            background-color: #f0f7ff;
-            font-family: monospace;
-            border-radius: 6px;
-            white-space: pre-wrap;
-        }
-
-        #downloadButton {
-            background-color: #2563eb;
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            background-image: url("https://img.icons8.com/material-rounded/24/ffffff/download--v1.png");
-            background-size: 18px;
-            background-repeat: no-repeat;
-            background-position: center;
-            position: absolute;
-            right: 18px;
-            top: 18px;
-            z-index: 10;
-            transition: background-color 0.3s ease;
-        }
-
-        #downloadButton:hover {
-            background-color: #1d4ed8;
-        }
-
-        .graph-wrapper {
-            position: relative;
-        }
-
-        .history-bar {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f8fafc;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
-
-        aside {
-            width: 300px;
-            background-color: #f8fafc;
-            border-right: 1px solid #e2e8f0;
-            padding: 20px;
-            overflow-y: auto;
-            height: calc(100vh - 60px);
-            position: sticky;
-            top: 30px;
-        }
-
-        .history-list-container {
-            margin-top: 10px;
-        }
-
-        .history-scroll-list {
-            max-height: 300px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .history-entry {
-            padding: 10px;
-            background-color: white;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .history-entry:hover {
-            background-color: #e0ecff;
-        }
-
-
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .history-header h3 {
-            margin: 0;
-            color: #1e293b;
-            font-size: 18px;
-        }
-
-        .history-item {
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            background-color: white;
-            border: 1px solid #e2e8f0;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .history-item:hover,
-        .history-item.active {
-            background-color: #eff6ff;
-            border-color: #2563eb;
-        }
-
-        .history-item-title {
-            font-weight: 500;
-            color: #1e293b;
-            margin-bottom: 4px;
-            font-size: 14px;
-        }
-
-        .history-item-date {
-            font-size: 12px;
-            color: #64748b;
-        }
-
-        .close-history {
-            display: none;
-        }
-
-        #loginScreen {
-            align-content: center;
-            height: calc(100vh - 48px);
-        }
-
-        #loginScreen .container {
-            background-color: transparent !important;
-            box-shadow: none !important;
-
-        }
-
-        .logo {
-            width: 75px;
-        }
-
-        .logo img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-
-        .login-box {
-            background: #fff;
-            padding: 50px 35px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 28px;
-            min-width: 500px;
-
-        }
-
-        .login-box input {
-            width: calc(100% - 24px);
-        }
-
-        .login-box h2 {
-            color: #2c3e50;
-            font-size: 18px;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        .usa-banner {
-            background-color: #fff;
-            padding: 12px 24px;
-        }
-
-        .usa-banner__header {
-            margin: 0px !important;
-        }
-
-        .usa-banner__header-text {
-            font-size: 15px !important;
-        }
-
-        .usa-banner__inner,
-        .usa-banner__header--expanded .usa-banner__inner,
-        .usa-banner__content {
-            margin: unset;
-        }
-
-        .history-filename {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            cursor: pointer;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .history-filename.expanded {
-            white-space: normal !important;
-            word-break: break-all;
-            overflow: visible;
-            text-overflow: unset;
-        }
-
-        .form-group.full-width {
-            width: 100%;
-        }
-
-        #generateBtn {
-            width: 100%;
-            /* make button span full width */
-        }
-    </style>
-</head>
-
-<body>
-    <section class="usa-banner" aria-label="Official website of the Unitezd States government">
-        <div class="usa-accordion">
-            <header class="usa-banner__header">
-                <div class="usa-banner__inner">
-                    <div class="grid-col-auto">
-                        <img class="usa-banner__header-flag"
-                            src="https://designsystem.digital.gov/assets/img/us_flag_small.png" alt="U.S. flag" />
-                    </div>
-                    <div class="grid-col-fill tablet:grid-col-auto">
-                        <p class="usa-banner__header-text">An official website of the United States government</p>
-                        <p class="usa-banner__header-action">Here's how you know</p>
-                    </div>
-                    <button type="button" class="usa-accordion__button usa-banner__button" aria-expanded="false"
-                        aria-controls="gov-banner">
-                        <span class="usa-banner__button-text">Here's how you know</span>
-                    </button>
-                </div>
-            </header>
-            <div class="usa-banner__content usa-accordion__content" id="gov-banner">
-                <div class="grid-row grid-gap-lg">
-                    <div class="usa-banner__guidance tablet:grid-col-6">
-                        <img class="usa-banner__icon usa-media-block__img"
-                            src="https://designsystem.digital.gov/assets/img/icon-dot-gov.svg" alt=""
-                            aria-hidden="true" />
-                        <div class="usa-media-block__body">
-                            <p>
-                                <strong>Official websites use .gov</strong><br />
-                                A <strong>.gov</strong> website belongs to an official government organization in the
-                                United States.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="usa-banner__guidance tablet:grid-col-6">
-                        <img class="usa-banner__icon usa-media-block__img"
-                            src="https://designsystem.digital.gov/assets/img/icon-https.svg" alt=""
-                            aria-hidden="true" />
-                        <div class="usa-media-block__body">
-                            <p>
-                                <strong>Secure .gov websites use HTTPS</strong><br />
-                                A <strong>lock</strong> (
-                                <svg xmlns="http://www.w3.org/2000/svg" width="52" height="64" viewBox="0 0 52 64"
-                                    class="usa-banner__lock-image" aria-hidden="true" focusable="false">
-                                    <path fill="#000" fill-rule="evenodd"
-                                        d="M26 0c10.493 0 19 8.507 19 19v9h3a4 4 0 0 1 4 4v28a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V32a4 4 0 0 1 4-4h3v-9C7 8.507 15.507 0 26 0zm0 8c-5.979 0-10.843 4.77-10.996 10.712L15 19v9h22v-9c0-6.075-4.925-11-11-11z" />
-                                </svg>
-                                ) or <strong>https://</strong> means you've safely connected to the .gov website. Share
-                                sensitive information only on official, secure websites.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <div id="loginScreen">
-        <div class="container flex flex-column flex-align-center">
-            <div class="login-box">
-                <div class="logo">
-                    <img src="static/images/logo.svg" alt="logo" style="width: 100%; height: 100%;">
-                </div>
-                <h2>Enter your username to continue</h2>
-                <input type="text" id="usernameInput" placeholder="Username" />
-                <button class="btn" style="width: 100%;" alt-text=" " activeate the button to login"
-                    onclick="handleLogin()">Log in</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="mainApp" style="display: none;">
-        <header class="header-main">
-            <div class="container">
-                <div class="logo">
-                    <img src="static/images/logo.svg" alt="logo" style="width: 100%; height: 100%;">
-                </div>
-                <div>
-                    <span id="currentUserLabel" style="margin-right: 12px; font-weight: bold;"></span>
-                    <button onclick="logoutUser()"
-                        style="padding: 8px 12px; font-size: 14px; background-color: #dc2626; color: #fff;"
-                        class="btn danger">Log out</button>
-                </div>
-            </div>
-        </header>
-
-        <div class="container">
-            <aside id="historySidebar">
-                <div class="history-header">
-                    <h3>Graph History</h3>
-                </div>
-                <div id="historyList">
-                    <div class="history-bar">
-                        <div class="history-list-container">
-                            <strong>Load from History:</strong>
-                            <div id="historyList" class="history-scroll-list"></div>
-                        </div>
-                    </div>
-                </div>
-            </aside>
-
-            <div class="main-content">
-                <h2>Upload CSV to Create a Knowledge Graph</h2>
-                <div class="upload-section">
-                    <div class="icon-img">
-                        <svg width="50" height="50" viewBox="0 0 71 53" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <!-- SVG content omitted for brevity -->
-                        </svg>
-                    </div>
-                    <input type="file" id="csvFile" accept=".csv" multiple onchange="handleFileSelect()" />
-                    <p style="margin: 0">
-                        Browse for your CSV files
-                        <a class="custom-upload-button" onclick="document.getElementById('csvFile').click()">
-                            Select Files
-                        </a>
-                    </p>
-                    <p id="formatMessage" style="margin: 5px 0 0px; font-size: 12px; color: #666">
-                        You can add up to 5 files max (Supported format: .csv files only)
-                    </p>
-                    <div id="selectedFilesList"></div>
-                    <button id="uploadAllBtn" onclick="uploadCSV(selectedFiles)" disabled>
-                        Upload Selected Files
-                    </button>
-                </div>
-
-                <div class="dropdowns">
-                    <div class="form-group file-group">
-                        <label>Subject File:</label>
-                        <select id="subjectFileSelect" onchange="updateHeaderDropdowns()" disabled></select>
-                    </div>
-                    <div class="form-group file-group">
-                        <label>Object File:</label>
-                        <select id="objectFileSelect" onchange="updateHeaderDropdowns()" disabled></select>
-                    </div>
-                    <div class="form-group column-group subject-column">
-                        <label>Subject Column:</label>
-                        <select id="subjectSelect" disabled></select>
-                    </div>
-                    <div class="form-group column-group object-column">
-                        <label>Object Column:</label>
-                        <select id="objectSelect" disabled></select>
-                    </div>
-                    <div class="form-group full-width">
-                        <button id="generateBtn" onclick="generateTriples()" disabled>Generate Triple Table</button>
-                    </div>
-
-                </div>
-
-                <div id="messageBox"></div>
-                <div id="errorBox"></div>
-
-                <div id="tripleTable" class="mb"></div>
-                <button id="doneBtn" onclick="submitTriples()" disabled>Done (Build Graph)</button>
-
-                <div class="graph-wrapper">
-                    <button id="downloadButton" onclick="downloadGraphImage()"></button>
-                    <div id="graph"></div>
-                    <div id="infoBox">Click a node or edge to see more details.</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let filename = "";
-        let allEdges = [];
-        let allNodes = [];
-        let network = null;
-        const predicates = ["hasType", "relatedTo", "owns", "describes", "connectedTo"];
-
-        let selectedFiles = [];
-
-        function handleFileSelect() {
-            const fileInput = document.getElementById("csvFile");
-            const newFile = fileInput.files[fileInput.files.length - 1];
-            if (!newFile || !newFile.name.endsWith(".csv")) return;
-
-            // Prevent duplicates
-            if (selectedFiles.some(f => f.name === newFile.name)) return;
-
-            if (selectedFiles.length >= 5) {
-                alert("You can only upload up to 5 files.");
-                return;
+    <head>
+        <meta charset="UTF-8" />
+        <title>CSV to Knowledge Graph</title>
+        <link rel="icon" type="image/png" href="/static/images/logo.svg">
+        <script src="https://unpkg.com/vis-network@9.1.2/standalone/umd/vis-network.min.js"></script>
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@uswds/uswds@latest/dist/css/uswds.min.css">
+        <style>
+            body {
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #f4f4f9;
+                margin: 0;
+                padding: 0;
             }
 
-            selectedFiles.push(newFile);
-            renderSelectedFiles();
-            fileInput.value = ''; // clear input so same file can be reselected if deleted
-        }
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 30px;
+                background-color: #fff;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                display: flex;
+                gap: 30px;
+            }
 
-        function renderSelectedFiles() {
-            const list = document.getElementById("selectedFilesList");
-            list.innerHTML = selectedFiles.map((file, index) => `
+            .header-main {
+                background-color: #fff;
+                margin-bottom: 22px;
+            }
+
+            .header-main .container {
+                background-color: transparent;
+                align-items: center;
+                justify-content: space-between;
+                box-shadow: none;
+                padding: 18px 50px;
+                max-width: unset;
+                border-top: 1px solid #e2e8f0;
+            }
+
+            .header-main .logo {
+                width: 55px;
+            }
+
+            .main-content {
+                flex: 1;
+                min-width: 0;
+                padding-left: 30px;
+                border-left: 1px solid #e2e8f0;
+            }
+
+            h2 {
+                color: #2c3e50;
+                margin-bottom: 25px;
+                font-size: 24px;
+                font-weight: 600;
+            }
+
+            .upload-section {
+                border: 2px dashed #2563eb;
+                padding: 100px 20px;
+                text-align: center;
+                background-color: #eff6ff;
+                border-radius: 8px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                transition: all 0.3s ease;
+                margin-bottom: 18px;
+            }
+
+            .upload-section p {
+                margin: 0;
+                margin-bottom: 12px;
+            }
+
+            .icon-img {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .icon-img img {
+                width: 50px;
+                height: 50px;
+            }
+
+            .custom-upload-button {
+                color: #2563eb;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 500;
+                text-decoration: none;
+                transition: color 0.2s ease;
+            }
+
+            .custom-upload-button:hover {
+                color: #1d4ed8;
+            }
+
+            .file-uploaded {
+                background-color: #fff;
+                display: flex;
+                justify-content: space-between;
+                padding: 8px;
+                border-radius: 8px;
+                border: 1px solid #d1d5db;
+                gap: 30px;
+                margin-bottom: 8px;
+            }
+
+            .file-name {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .file-name span {
+                word-break: break-all;
+                max-width: 600px;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+
+            .file-name span.expanded {
+                white-space: normal !important;
+                word-break: break-all;
+                overflow: visible;
+                text-overflow: unset;
+            }
+
+            button:focus{
+                outline: none !important;
+            }
+
+            .file-uploaded button {
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 4px;
+                transition: opacity 0.2s ease;
+            }
+
+            .file-name button:hover {
+                opacity: 0.8;
+            }
+
+            .file-actions {
+                display: flex;
+                gap: 8px;
+            }
+
+            #csvFile {
+                display: none;
+            }
+
+            .dropdowns {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-bottom: 18px;
+                align-items: flex-end;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+                position: relative;
+            }
+
+            .form-group.file-group {
+                flex: 1;
+                min-width: calc(50% - 5px);
+            }
+
+            .form-group.column-group {
+                flex: 1;
+            }
+
+            .form-group.object-column {
+                min-width: calc(50% - 5px);
+            }
+
+            #generateBtn {
+                min-width: calc(50% - 5px);
+                margin-top: 24px;
+            }
+
+            label {
+                font-size: 14px;
+                font-weight: 500;
+                color: #374151;
+            }
+
+            select,
+            input {
+                padding: 8px 12px;
+                font-size: 14px;
+                border-radius: 6px;
+                border: 1px solid #d1d5db;
+                background-color: white;
+                color: #374151;
+                cursor: pointer;
+                appearance: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 10px center;
+                padding-right: 32px;
+                transition: all 0.2s ease;
+                min-height: 42px;
+                width: 100%;
+            }
+
+            input {
+                background-image: none;
+                min-height: 32px;
+                width: 100%;
+                padding: 10px 12px;
+                cursor: text;
+            }
+
+            input:hover,
+            select:hover {
+                border-color: #2563eb;
+            }
+
+            input:focus,
+            select:focus {
+                outline: none;
+                border-color: #2563eb;
+                box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+                outline: none !important;
+            }
+
+            input:disabled,
+            select:disabled {
+                background-color: #f3f4f6;
+                cursor: not-allowed;
+                opacity: 0.7;
+            }
+
+            #generateBtn,
+            #doneBtn,
+            #uploadAllBtn,
+            .btn {
+                background-color: #2563eb;
+                border-radius: 8px;
+                border: none;
+                cursor: pointer;
+                padding: 12.96px 22px;
+                font-size: 14px;
+                font-weight: 500;
+                color: #fff;
+                transition: all 0.3s ease;
+            }
+
+            #generateBtn:hover,
+            #doneBtn:hover,
+            #uploadAllBtn:hover,
+            .btn:hover {
+                background-color: #1d4ed8;
+            }
+
+            #generateBtn:disabled,
+            #doneBtn:disabled,
+            #uploadAllBtn:disabled,
+            .btn:disabled {
+                background-color: #93c5fd;
+                cursor: not-allowed;
+            }
+
+            .mb {
+                margin-bottom: 18px !important;
+            }
+
+            #messageBox,
+            #errorBox {
+                margin-top: 15px;
+                padding: 12px 20px;
+                border-radius: 8px;
+                font-weight: 500;
+                display: none;
+            }
+
+            #messageBox {
+                background-color: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+
+            #errorBox {
+                background-color: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+                background: white;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            th,
+            td {
+                border: 1px solid #ddd;
+                padding: 10px;
+                text-align: left;
+            }
+
+            th {
+                background: #f9f9f9;
+                font-weight: 600;
+            }
+
+            #graph {
+                width: 100%;
+                height: 600px;
+                margin-top: 40px;
+                border: 2px dashed #2563eb;
+                border-radius: 8px;
+                background-color: #fff;
+            }
+
+            #infoBox {
+                margin-top: 10px;
+                padding: 12px;
+                border: 1px dashed #2563eb;
+                background-color: #f0f7ff;
+                font-family: monospace;
+                border-radius: 6px;
+                white-space: pre-wrap;
+            }
+
+            #downloadButton {
+                background-color: #2563eb;
+                width: 40px;
+                height: 40px;
+                border-radius: 8px;
+                border: none;
+                cursor: pointer;
+                background-image: url("https://img.icons8.com/material-rounded/24/ffffff/download--v1.png");
+                background-size: 18px;
+                background-repeat: no-repeat;
+                background-position: center;
+                position: absolute;
+                right: 18px;
+                top: 18px;
+                z-index: 10;
+                transition: background-color 0.3s ease;
+            }
+
+            #downloadButton:hover {
+                background-color: #1d4ed8;
+            }
+
+            .graph-wrapper {
+                position: relative;
+            }
+
+            .history-bar {
+                margin-top: 20px;
+                padding: 15px;
+                background-color: #f8fafc;
+                border-radius: 8px;
+                border: 1px solid #e2e8f0;
+            }
+
+            aside {
+                width: 300px;
+                background-color: #f8fafc;
+                border-right: 1px solid #e2e8f0;
+                padding: 20px;
+                overflow-y: auto;
+                height: calc(100vh - 60px);
+                position: sticky;
+                top: 30px;
+            }
+
+            .history-list-container {
+                margin-top: 10px;
+            }
+
+            .history-scroll-list {
+                max-height: 300px;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .history-entry {
+                padding: 10px;
+                background-color: white;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: background-color 0.2s;
+                margin-bottom: 12px;
+            }
+
+            .history-entry:hover {
+                background-color: #e0ecff;
+            }
+
+            .history-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #e2e8f0;
+            }
+
+            .history-header h3 {
+                margin: 0;
+                color: #1e293b;
+                font-size: 18px;
+            }
+
+            .history-item {
+                padding: 12px;
+                border-radius: 8px;
+                margin-bottom: 10px;
+                background-color: white;
+                border: 1px solid #e2e8f0;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .history-item:hover,
+            .history-item.active {
+                background-color: #eff6ff;
+                border-color: #2563eb;
+            }
+
+            .history-item-title {
+                font-weight: 500;
+                color: #1e293b;
+                margin-bottom: 4px;
+                font-size: 14px;
+            }
+
+            .history-item-date {
+                font-size: 12px;
+                color: #64748b;
+            }
+
+            .close-history {
+                display: none;
+            }
+
+            #loginScreen {
+                align-content: center;
+                height: calc(100vh - 48px);
+            }
+
+            #loginScreen .container {
+                background-color: transparent !important;
+                box-shadow: none !important;
+            }
+
+            .logo {
+                width: 75px;
+
+                img {
+                    width: 100%;
+                    height: auto;
+                    display: block;
+                }
+            }
+
+            .login-box {
+                background: #fff;
+                padding: 50px 35px;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 28px;
+                min-width: 500px;
+            }
+
+            .login-box input {
+                width: calc(100% - 24px);
+            }
+
+            .login-box h2 {
+                color: #2c3e50;
+                font-size: 18px;
+                font-weight: 600;
+                margin: 0;
+            }
+
+            .usa-banner {
+                background-color: #fff;
+                padding: 12px 24px;
+            }
+
+            .usa-banner__header {
+                margin: 0px !important;
+            }
+
+            .usa-banner__header-text {
+                font-size: 15px !important;
+            }
+
+            .usa-banner__inner,
+            .usa-banner__header--expanded .usa-banner__inner,
+            .usa-banner__content {
+                margin: unset;
+            }
+
+            .history-filename {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                cursor: pointer;
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            .history-filename.expanded {
+                white-space: normal !important;
+                word-break: break-all;
+                overflow: visible;
+                text-overflow: unset;
+            }
+
+            input[type="checkbox"] {
+                appearance: none;
+                -webkit-appearance: none;
+                background-color: #fff;
+                border: 1px solid #1d4ed8;
+                width: 18px;
+                height: 18px;
+                border-radius: 4px;
+                display: inline-block;
+                position: relative;
+                vertical-align: middle;
+                cursor: pointer;
+                transition: border-color 0.2s, box-shadow 0.2s;
+                min-height: unset;
+                padding: 0;
+            }
+
+            input[type="checkbox"]:checked {
+                background-color: #2563eb;
+                border-color: #2563eb;
+            }
+
+            input[type="checkbox"]:checked::after {
+                content: '';
+                position: absolute;
+                left: 5px;
+                top: 3px;
+                width: 5px;
+                height: 9px;
+                border: solid #fff;
+                border-width: 0 2px 2px 0;
+                transform: rotate(45deg);
+            }
+        </style>
+    </head>
+
+    <body>
+        <section class="usa-banner" aria-label="Official website of the Unitezd States government">
+            <div class="usa-accordion">
+                <header class="usa-banner__header">
+                    <div class="usa-banner__inner">
+                        <div class="grid-col-auto">
+                            <img
+                                class="usa-banner__header-flag"
+                                src="https://designsystem.digital.gov/assets/img/us_flag_small.png"
+                                alt="U.S. flag" />
+                        </div>
+                        <div class="grid-col-fill tablet:grid-col-auto">
+                            <p class="usa-banner__header-text">An official website of the United States government</p>
+                            <p class="usa-banner__header-action">Here's how you know</p>
+                        </div>
+                        <button
+                            type="button"
+                            class="usa-accordion__button usa-banner__button"
+                            aria-expanded="false"
+                            aria-controls="gov-banner">
+                            <span class="usa-banner__button-text">Here's how you know</span>
+                        </button>
+                    </div>
+                </header>
+                <div class="usa-banner__content usa-accordion__content" id="gov-banner">
+                    <div class="grid-row grid-gap-lg">
+                        <div class="usa-banner__guidance tablet:grid-col-6">
+                            <img
+                                class="usa-banner__icon usa-media-block__img"
+                                src="https://designsystem.digital.gov/assets/img/icon-dot-gov.svg"
+                                alt=""
+                                aria-hidden="true" />
+                            <div class="usa-media-block__body">
+                                <p>
+                                    <strong>Official websites use .gov</strong><br /> A <strong>.gov</strong> website belongs to an official government organization in the United States.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="usa-banner__guidance tablet:grid-col-6">
+                            <img
+                                class="usa-banner__icon usa-media-block__img"
+                                src="https://designsystem.digital.gov/assets/img/icon-https.svg"
+                                alt=""
+                                aria-hidden="true" />
+                            <div class="usa-media-block__body">
+                                <p>
+                                    <strong>Secure .gov websites use HTTPS</strong><br /> A <strong>lock</strong> ( <svg xmlns="http://www.w3.org/2000/svg" width="52" height="64" viewBox="0 0 52 64"
+                                        class="usa-banner__lock-image" aria-hidden="true" focusable="false">
+                                        <path fill="#000" fill-rule="evenodd"
+                                            d="M26 0c10.493 0 19 8.507 19 19v9h3a4 4 0 0 1 4 4v28a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V32a4 4 0 0 1 4-4h3v-9C7 8.507 15.507 0 26 0zm0 8c-5.979 0-10.843 4.77-10.996 10.712L15 19v9h22v-9c0-6.075-4.925-11-11-11z" />
+                                    </svg> ) or <strong>https://</strong> means you've safely connected to the .gov website. Share sensitive information only on official, secure websites.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div id="loginScreen">
+            <div class="container flex flex-column flex-align-center">
+                <div class="login-box">
+                    <div class="logo">
+                        <img src="static/images/logo.svg" alt="logo" style="width: 100%; height: 100%;">
+                    </div>
+                    <h2>Enter your username to continue</h2>
+                    <input type="text" id="usernameInput" placeholder="Username" />
+                    <button class="btn" style="width: 100%;" onclick="handleLogin()">Enter</button>
+                </div>
+            </div>
+        </div>
+        <div id="mainApp" style="display: none;">
+            <header class="header-main">
+                <div class="container">
+                    <div class="logo">
+                        <img src="static/images/logo.svg" alt="logo" style="width: 100%; height: 100%;">
+                    </div>
+                    <div>
+                        <span id="currentUserLabel" style="margin-right: 12px; font-weight: bold;"></span>
+                        <button onclick="logoutUser()" style="padding: 8px 12px; font-size: 14px; background-color: #dc2626; color: #fff;" class="btn danger">Log out</button>
+                    </div>
+                </div>
+            </header>
+            <div class="container">
+                <aside id="historySidebar">
+                    <div class="history-header">
+                        <h3>Graph History</h3>
+                    </div>
+                    <div id="historyList">
+                        <div class="history-bar">
+                            <div class="history-list-container">
+                                <strong>Load from History:</strong>
+                                <div id="historyList" class="history-scroll-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+                <div class="main-content">
+                    <h2>Upload CSV to Create a Knowledge Graph</h2>
+                    <div class="upload-section">
+                        <div class="icon-img">
+                            <svg width="50" height="50" viewBox="0 0 71 53" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <!-- SVG content omitted for brevity -->
+                            </svg>
+                        </div>
+                        <input type="file" id="csvFile" accept=".csv" multiple onchange="handleFileSelect()" />
+                        <p style="margin: 0"> Browse for your CSV files <a class="custom-upload-button" onclick="document.getElementById('csvFile').click()"> Select Files </a>
+                        </p>
+                        <p id="formatMessage" style="margin: 5px 0 0px; font-size: 12px; color: #666"> You can add up to 5 files max (Supported format: .csv files only) </p>
+                        <div id="selectedFilesList"></div>
+                        <button id="uploadAllBtn" onclick="uploadCSV(selectedFiles)" disabled> Upload Selected Files </button>
+                    </div>
+                    <div class="dropdowns">
+                        <div class="form-group file-group">
+                            <label>Subject File:</label>
+                            <select id="subjectFileSelect" onchange="updateHeaderDropdowns()"></select>
+                        </div>
+                        <div class="form-group file-group">
+                            <label>Object File:</label>
+                            <select id="objectFileSelect" onchange="updateHeaderDropdowns()"></select>
+                        </div>
+                        <div class="form-group column-group subject-column">
+                            <label>Subject Column:</label>
+                            <select id="subjectSelect" disabled></select>
+                        </div>
+                        <div class="form-group column-group object-column">
+                            <label>Object Column:</label>
+                            <select id="objectSelect" disabled></select>
+                        </div>
+                        <div style="text-align: end;">
+                            <button id="generateBtn" onclick="generateTriples()" disabled>Generate Triple Table</button>
+                        </div>
+                    </div>
+                    <div id="messageBox"></div>
+                    <div id="errorBox"></div>
+                    <div id="tripleTable" class="mb"></div>
+                    <button id="doneBtn" onclick="submitTriples()" disabled>Done (Build Graph)</button>
+                    <div class="graph-wrapper">
+                        <button id="downloadButton" onclick="downloadGraphImage()"></button>
+                        <div id="graph"></div>
+                        <div id="infoBox">Click a node or edge to see more details.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            let filename = "";
+            let allEdges = [];
+            let allNodes = [];
+            let network = null;
+            const predicates = ["hasType", "relatedTo", "owns", "describes", "connectedTo"];
+
+            let selectedFiles = [];
+
+            function handleFileSelect() {
+                const fileInput = document.getElementById("csvFile");
+                const newFile = fileInput.files[fileInput.files.length - 1];
+                if (!newFile || !newFile.name.endsWith(".csv")) return;
+
+                // Prevent duplicates
+                if (selectedFiles.some(f => f.name === newFile.name)) return;
+
+                if (selectedFiles.length >= 5) {
+                    alert("You can only upload up to 5 files.");
+                    return;
+                }
+
+                selectedFiles.push(newFile);
+                renderSelectedFiles();
+                fileInput.value = ''; // clear input so same file can be reselected if deleted
+            }
+
+            function renderSelectedFiles() {
+                const list = document.getElementById("selectedFilesList");
+                list.innerHTML = selectedFiles.map((file, index) => `
                 <div class="file-uploaded">
                     <div class="file-name">
                         <input type="checkbox" id="file-${index}" checked onchange="updateUploadButton()">
                         <i class="bi bi-file-earmark" style="font-size: 18px; color: #2563EB;"></i>
-                        <span>${file.name}</span>
+                        <span onclick="this.classList.toggle('expanded')" title="${file.name}">${file.name}</span>
                     </div>
                     <div class="file-actions">
                         <button onclick="document.getElementById('csvFile').click()">
@@ -743,375 +767,371 @@
                     </div>
                 </div>
             `).join('');
-            updateUploadButton();
-        }
+                updateUploadButton();
+            }
 
-        function updateUploadButton() {
-            const uploadAllBtn = document.getElementById("uploadAllBtn");
-            const checked = document.querySelectorAll('#selectedFilesList input[type="checkbox"]:checked');
-            uploadAllBtn.disabled = checked.length === 0;
-        }
+            function updateUploadButton() {
+                const uploadAllBtn = document.getElementById("uploadAllBtn");
+                const checked = document.querySelectorAll('#selectedFilesList input[type="checkbox"]:checked');
+                uploadAllBtn.disabled = checked.length === 0;
+            }
 
-        function removeFile(index) {
-            selectedFiles.splice(index, 1);
-            renderSelectedFiles();
-        }
+            function removeFile(index) {
+                selectedFiles.splice(index, 1);
+                renderSelectedFiles();
+            }
 
-        async function uploadCSV(files) {
-            const subjectSel = document.getElementById("subjectSelect");
-            const objectSel = document.getElementById("objectSelect");
-            const generateBtn = document.getElementById("generateBtn");
-            const doneBtn = document.getElementById("doneBtn");
-            const messageBox = document.getElementById("messageBox");
-            const errorBox = document.getElementById("errorBox");
+            async function uploadCSV(files) {
+                const subjectSel = document.getElementById("subjectSelect");
+                const objectSel = document.getElementById("objectSelect");
+                const generateBtn = document.getElementById("generateBtn");
+                const doneBtn = document.getElementById("doneBtn");
+                const messageBox = document.getElementById("messageBox");
+                const errorBox = document.getElementById("errorBox");
 
-            messageBox.style.display = "none";
-            errorBox.style.display = "none";
-            subjectSel.innerHTML = "";
-            objectSel.innerHTML = "";
-            subjectSel.disabled = true;
-            objectSel.disabled = true;
-            generateBtn.disabled = true;
-            doneBtn.disabled = true;
+                messageBox.style.display = "none";
+                errorBox.style.display = "none";
+                subjectSel.innerHTML = "";
+                objectSel.innerHTML = "";
+                subjectSel.disabled = true;
+                objectSel.disabled = true;
+                generateBtn.disabled = true;
+                doneBtn.disabled = true;
 
-            const formData = new FormData();
-            selectedFiles.forEach(f => formData.append("files", f));
+                const formData = new FormData();
+                const checkedBoxes = document.querySelectorAll('#selectedFilesList input[type="checkbox"]:checked');
+                const checkedIndexes = Array.from(checkedBoxes).map(cb => parseInt(cb.id.replace('file-', '')));
+                checkedIndexes.forEach(i => formData.append("files", selectedFiles[i]));
 
-            try {
-                const res = await fetch("/upload", {
+                try {
+                    const res = await fetch("/upload", {
+                        method: "POST",
+                        body: formData
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || "Upload failed.");
+
+                    window.uploadedFileInfo = data.files;
+                    filename = data.files[0].filename;
+
+                    const subjectFileSelect = document.getElementById("subjectFileSelect");
+                    const objectFileSelect = document.getElementById("objectFileSelect");
+                    subjectFileSelect.innerHTML = "";
+                    objectFileSelect.innerHTML = "";
+
+                    data.files.forEach(file => {
+                        const shortName = file.filename.split("_").slice(1).join("_");
+                        const opt = `<option value="${file.filename}">${shortName}</option>`;
+                        subjectFileSelect.innerHTML += opt;
+                        objectFileSelect.innerHTML += opt;
+                    });
+
+                    updateHeaderDropdowns();
+                    subjectSel.disabled = false;
+                    objectSel.disabled = false;
+                    generateBtn.disabled = false;
+                    messageBox.style.display = "block";
+                    messageBox.innerText = "Files uploaded successfully.";
+                } catch (err) {
+                    errorBox.style.display = "block";
+                    errorBox.innerText = err.message || "An error occurred during upload.";
+                }
+            }
+
+            async function generateTriples() {
+                const subjectCol = document.getElementById("subjectSelect").value;
+                const objectCol = document.getElementById("objectSelect").value;
+                const subjectFile = document.getElementById("subjectFileSelect").value;
+                const objectFile = document.getElementById("objectFileSelect").value;
+
+                const res = await fetch("/prepare-triples", {
                     method: "POST",
-                    body: formData
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        subject_file: subjectFile,
+                        object_file: objectFile,
+                        subject: subjectCol,
+                        object: objectCol
+                    })
                 });
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.error || "Upload failed.");
+                if (!res.ok) {
+                    document.getElementById("errorBox").style.display = "block";
+                    document.getElementById("errorBox").innerText = data.error || "Triple prep failed.";
+                    return;
+                }
 
-                window.uploadedFileInfo = data.files;
-                filename = data.files[0].filename;
-
-                const subjectFileSelect = document.getElementById("subjectFileSelect");
-                const objectFileSelect = document.getElementById("objectFileSelect");
-                subjectFileSelect.innerHTML = "";
-                objectFileSelect.innerHTML = "";
-
-                data.files.forEach(file => {
-                    const shortName = file.filename.split("_").slice(1).join("_");
-                    const opt = `<option value="${file.filename}">${shortName}</option>`;
-                    subjectFileSelect.innerHTML += opt;
-                    objectFileSelect.innerHTML += opt;
-                });
-
-                // ✅ Enable the file dropdowns after upload
-                subjectFileSelect.disabled = false;
-                objectFileSelect.disabled = false;
-
-
-                updateHeaderDropdowns();
-                subjectSel.disabled = false;
-                objectSel.disabled = false;
-                generateBtn.disabled = false;
-                messageBox.style.display = "block";
-                messageBox.innerText = "Files uploaded successfully.";
-            } catch (err) {
-                errorBox.style.display = "block";
-                errorBox.innerText = err.message || "An error occurred during upload.";
-            }
-        }
-
-        async function generateTriples() {
-            const subjectCol = document.getElementById("subjectSelect").value;
-            const objectCol = document.getElementById("objectSelect").value;
-            const subjectFile = document.getElementById("subjectFileSelect").value;
-            const objectFile = document.getElementById("objectFileSelect").value;
-
-            const res = await fetch("/prepare-triples", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    subject_file: subjectFile,
-                    object_file: objectFile,
-                    subject: subjectCol,
-                    object: objectCol
-                })
-            });
-            const data = await res.json();
-            if (!res.ok) {
-                document.getElementById("errorBox").style.display = "block";
-                document.getElementById("errorBox").innerText = data.error || "Triple prep failed.";
-                return;
-            }
-
-            document.getElementById("doneBtn").disabled = false;
-            document.getElementById("tripleTable").innerHTML =
-                `<table><tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>` +
-                data.triples.map((t, i) => `
+                document.getElementById("doneBtn").disabled = false;
+                document.getElementById("tripleTable").innerHTML =
+                    `<table><tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>` +
+                    data.triples.map((t, i) => `
                     <tr>
                         <td>${t.subject}</td>
                         <td><select data-row="${i}">${predicates.map(p => `<option value="${p}">${p}</option>`).join("")}</select></td>
                         <td>${t.object}</td>
                     </tr>
                 `).join("") +
-                `</table>`;
-        }
+                    `</table>`;
+            }
 
-        async function submitTriples() {
-            const selects = document.querySelectorAll("#tripleTable select");
-            const triples = [];
-            const subjectFile = document.getElementById("subjectFileSelect").value;
-            const objectFile = document.getElementById("objectFileSelect").value;
+            async function submitTriples() {
+                const selects = document.querySelectorAll("#tripleTable select");
+                const triples = [];
+                const subjectFile = document.getElementById("subjectFileSelect").value;
+                const objectFile = document.getElementById("objectFileSelect").value;
 
-            selects.forEach(sel => {
-                const row = sel.closest("tr");
-                triples.push({
-                    subject: row.children[0].innerText,
-                    predicate: sel.value,
-                    object: row.children[2].innerText,
-                    subjectFile,
-                    objectFile
+                selects.forEach(sel => {
+                    const row = sel.closest("tr");
+                    triples.push({
+                        subject: row.children[0].innerText,
+                        predicate: sel.value,
+                        object: row.children[2].innerText,
+                        subjectFile,
+                        objectFile
+                    });
                 });
-            });
 
-            const res = await fetch("/build-graph", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
+                const res = await fetch("/build-graph", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        triples,
+                        filename
+                    })
+                });
+                const data = await res.json();
+                allNodes = data.nodes;
+                allEdges = data.edges;
+                drawGraph(data);
+                saveToLocalHistory({
+                    filename,
                     triples,
-                    filename
-                })
-            });
-            const data = await res.json();
-            allNodes = data.nodes;
-            allEdges = data.edges;
-            drawGraph(data);
-            saveToLocalHistory({
-                filename,
-                triples,
-                graphData: data
-            });
-        }
-
-        function cleanFilename(f) {
-            return f.includes("_") ? f.split("_").slice(1).join("_") : f;
-        }
-
-        function drawGraph(graphData) {
-            const container = document.getElementById("graph");
-            const data = {
-                nodes: new vis.DataSet(graphData.nodes),
-                edges: new vis.DataSet(graphData.edges)
-            };
-            const options = {
-                layout: {
-                    improvedLayout: true
-                },
-                physics: {
-                    stabilization: true,
-                    barnesHut: {
-                        gravitationalConstant: -5000,
-                        centralGravity: 0.3,
-                        springLength: 150,
-                        springConstant: 0.04
-                    }
-                },
-                edges: {
-                    arrows: "to"
-                },
-                interaction: {
-                    hover: true,
-                    tooltipDelay: 100,
-                    navigationButtons: true,
-                    selectable: true
-                }
-            };
-            network = new vis.Network(container, data, options);
-
-            network.on("click", function (params) {
-                const infoBox = document.getElementById("infoBox");
-                const nodeId = params.nodes[0];
-                if (!nodeId) return (infoBox.innerText = "Click a node or edge to see more details.");
-
-                const node = graphData.nodes.find(n => n.id === nodeId);
-                const connected = graphData.edges.filter(e => e.from === nodeId || e.to === nodeId);
-
-                const nodeFileMap = graphData.nodeSources || {};
-                const nodeFile = cleanFilename(nodeFileMap[node.label] || 'unknown.csv');
-                let desc = `Node: ${node.label} (${nodeFile})\nConnected to:\n`;
-                connected.forEach(e => {
-                    const otherId = e.from === nodeId ? e.to : e.from;
-                    const otherLabel = graphData.nodes.find(n => n.id === otherId)?.label || "Unknown";
-                    const otherFile = cleanFilename(nodeFileMap[otherLabel] || 'unknown.csv');
-                    const direction = e.from === nodeId ? "→" : "←";
-                    desc += `• ${e.label} ${direction} ${otherLabel} (${otherFile})\n`;
+                    graphData: data
                 });
+            }
 
-                infoBox.innerText = desc;
+            function cleanFilename(f) {
+                return f.includes("_") ? f.split("_").slice(1).join("_") : f;
+            }
 
-            });
-        }
+            function drawGraph(graphData) {
+                const container = document.getElementById("graph");
+                const data = {
+                    nodes: new vis.DataSet(graphData.nodes),
+                    edges: new vis.DataSet(graphData.edges)
+                };
+                const options = {
+                    layout: {
+                        improvedLayout: true
+                    },
+                    physics: {
+                        stabilization: true,
+                        barnesHut: {
+                            gravitationalConstant: -5000,
+                            centralGravity: 0.3,
+                            springLength: 150,
+                            springConstant: 0.04
+                        }
+                    },
+                    edges: {
+                        arrows: "to"
+                    },
+                    interaction: {
+                        hover: true,
+                        tooltipDelay: 100,
+                        navigationButtons: true,
+                        selectable: true
+                    }
+                };
+                network = new vis.Network(container, data, options);
 
-        function downloadGraphImage() {
-            const canvas = document.querySelector("#graph canvas");
-            const link = document.createElement("a");
-            link.download = "knowledge_graph.png";
-            link.href = canvas.toDataURL();
-            link.click();
-        }
+                network.on("click", function (params) {
+                    const infoBox = document.getElementById("infoBox");
+                    const nodeId = params.nodes[0];
+                    if (!nodeId) return (infoBox.innerText = "Click a node or edge to see more details.");
 
-        function saveToLocalHistory(entry) {
-            const user = localStorage.getItem("currentUser") || "guest";
-            const key = `kgraphHistory_${user}`;
-            const history = JSON.parse(localStorage.getItem(key) || "[]");
+                    const node = graphData.nodes.find(n => n.id === nodeId);
+                    const connected = graphData.edges.filter(e => e.from === nodeId || e.to === nodeId);
 
-            entry.id = Date.now();
-            entry.timestamp = new Date().toISOString();
-            entry.filename = cleanFilename(entry.filename || filename);
-            history.push(entry);
+                    const nodeFileMap = graphData.nodeSources || {};
+                    const nodeFile = cleanFilename(nodeFileMap[node.label] || 'unknown.csv');
+                    let desc = `Node: ${node.label} (${nodeFile})\nConnected to:\n`;
+                    connected.forEach(e => {
+                        const otherId = e.from === nodeId ? e.to : e.from;
+                        const otherLabel = graphData.nodes.find(n => n.id === otherId)?.label || "Unknown";
+                        const otherFile = cleanFilename(nodeFileMap[otherLabel] || 'unknown.csv');
+                        const direction = e.from === nodeId ? "→" : "←";
+                        desc += `• ${e.label} ${direction} ${otherLabel} (${otherFile})\n`;
+                    });
 
-            localStorage.setItem(key, JSON.stringify(history));
-            populateHistoryList(); // refresh list for this user
-        }
+                    infoBox.innerText = desc;
 
-        function populateHistoryList() {
-            const user = localStorage.getItem("currentUser") || "guest";
-            const key = `kgraphHistory_${user}`;
-            const historyList = document.getElementById("historyList");
+                });
+            }
 
-            const history = JSON.parse(localStorage.getItem(key) || "[]")
-                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-                .slice(0, 10);
+            function downloadGraphImage() {
+                const canvas = document.querySelector("#graph canvas");
+                const link = document.createElement("a");
+                link.download = "knowledge_graph.png";
+                link.href = canvas.toDataURL();
+                link.click();
+            }
 
-            historyList.innerHTML = "";
+            function saveToLocalHistory(entry) {
+                const user = localStorage.getItem("currentUser") || "guest";
+                const key = `kgraphHistory_${user}`;
+                const history = JSON.parse(localStorage.getItem(key) || "[]");
 
-            history.forEach(entry => {
-                const div = document.createElement("div");
-                div.className = "history-entry";
-                div.innerHTML = `
+                entry.id = Date.now();
+                entry.timestamp = new Date().toISOString();
+                entry.filename = cleanFilename(entry.filename || filename);
+                history.push(entry);
+
+                localStorage.setItem(key, JSON.stringify(history));
+                populateHistoryList(); // refresh list for this user
+            }
+
+            function populateHistoryList() {
+                const user = localStorage.getItem("currentUser") || "guest";
+                const key = `kgraphHistory_${user}`;
+                const historyList = document.getElementById("historyList");
+
+                const history = JSON.parse(localStorage.getItem(key) || "[]")
+                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                    .slice(0, 10);
+
+                historyList.innerHTML = "";
+
+                history.forEach(entry => {
+                    const div = document.createElement("div");
+                    div.className = "history-entry";
+                    div.innerHTML = `
             <div class="history-filename" title="${entry.filename}"><strong>${entry.filename}</strong></div>
             <div style="font-size: 12px; color: #555;">${new Date(entry.timestamp).toLocaleString()}</div>
         `;
-                const filenameDiv = div.querySelector('.history-filename');
-                filenameDiv.onclick = (e) => {
-                    e.stopPropagation(); // Prevent triggering the history entry click
-                    filenameDiv.classList.toggle('expanded');
-                };
-                div.onclick = () => loadGraphEntry(entry);
-                historyList.appendChild(div);
-            });
-        }
+                    const filenameDiv = div.querySelector('.history-filename');
+                    filenameDiv.onclick = (e) => {
+                        e.stopPropagation(); // Prevent triggering the history entry click
+                        filenameDiv.classList.toggle('expanded');
+                    };
+                    div.onclick = () => loadGraphEntry(entry);
+                    historyList.appendChild(div);
+                });
+            }
 
-        function loadGraphEntry(entry) {
-            // Load graph
-            drawGraph(entry.graphData);
+            function loadGraphEntry(entry) {
+                // Load graph
+                drawGraph(entry.graphData);
 
-            // Load triple table
-            const tripleTableDiv = document.getElementById("tripleTable");
-            const doneBtn = document.getElementById("doneBtn");
+                // Load triple table
+                const tripleTableDiv = document.getElementById("tripleTable");
+                const doneBtn = document.getElementById("doneBtn");
 
-            tripleTableDiv.innerHTML =
-                `<table><tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>` +
-                entry.triples.map((t, i) => `
+                tripleTableDiv.innerHTML =
+                    `<table><tr><th>Subject</th><th>Predicate</th><th>Object</th></tr>` +
+                    entry.triples.map((t, i) => `
             <tr>
                 <td>${t.subject}</td>
                 <td><select data-row="${i}">${predicates.map(p =>
-                    `<option value="${p}" ${p === t.predicate ? "selected" : ""}>${p}</option>`).join("")}</select></td>
+                        `<option value="${p}" ${p === t.predicate ? "selected" : ""}>${p}</option>`).join("")}</select></td>
                 <td>${t.object}</td>
             </tr>
         `).join("") +
-                `</table>`;
+                    `</table>`;
 
-            doneBtn.disabled = false;
-            filename = entry.filename;
-        }
-
-        function updateHeaderDropdowns() {
-            const sFile = document.getElementById("subjectFileSelect").value;
-            const oFile = document.getElementById("objectFileSelect").value;
-            const subjectSel = document.getElementById("subjectSelect");
-            const objectSel = document.getElementById("objectSelect");
-            subjectSel.disabled = objectSel.disabled = true;
-            subjectSel.innerHTML = objectSel.innerHTML = "";
-
-            (window.uploadedFileInfo || []).forEach(f => {
-                if (f.filename === sFile) {
-                    f.headers.forEach(h => subjectSel.innerHTML += `<option value="${h}">${h}</option>`);
-                    subjectSel.disabled = false;
-                }
-                if (f.filename === oFile) {
-                    f.headers.forEach(h => objectSel.innerHTML += `<option value="${h}">${h}</option>`);
-                    objectSel.disabled = false;
-                }
-            });
-        }
-
-        function handleLogin() {
-            const username = document.getElementById("usernameInput").value.trim();
-            if (!username) {
-                alert("Please enter a username.");
-                return;
+                doneBtn.disabled = false;
+                filename = entry.filename;
             }
 
-            localStorage.setItem("currentUser", username);
-            document.getElementById("loginScreen").style.display = "none";
-            document.getElementById("mainApp").style.display = "block";
-            document.getElementById("currentUserLabel").innerText = `Logged in as: ${username}`;
+            function updateHeaderDropdowns() {
+                const sFile = document.getElementById("subjectFileSelect").value;
+                const oFile = document.getElementById("objectFileSelect").value;
+                const subjectSel = document.getElementById("subjectSelect");
+                const objectSel = document.getElementById("objectSelect");
+                subjectSel.disabled = objectSel.disabled = true;
+                subjectSel.innerHTML = objectSel.innerHTML = "";
 
-            populateHistoryList();
-        }
+                (window.uploadedFileInfo || []).forEach(f => {
+                    if (f.filename === sFile) {
+                        f.headers.forEach(h => subjectSel.innerHTML += `<option value="${h}">${h}</option>`);
+                        subjectSel.disabled = false;
+                    }
+                    if (f.filename === oFile) {
+                        f.headers.forEach(h => objectSel.innerHTML += `<option value="${h}">${h}</option>`);
+                        objectSel.disabled = false;
+                    }
+                });
+            }
 
-        function logoutUser() {
-            // Remove username
-            localStorage.removeItem("currentUser");
+            function handleLogin() {
+                const username = document.getElementById("usernameInput").value.trim();
+                if (!username) {
+                    alert("Please enter a username.");
+                    return;
+                }
 
-            // Hide app, show login screen
-            document.getElementById("mainApp").style.display = "none";
-            document.getElementById("loginScreen").style.display = "flex";
-
-            // Clear file uploads
-            selectedFiles = [];
-            document.getElementById("selectedFilesList").innerHTML = "";
-
-            // Clear triple table
-            document.getElementById("tripleTable").innerHTML = "";
-
-            // Clear dropdowns
-            document.getElementById("subjectFileSelect").innerHTML = "";
-            document.getElementById("objectFileSelect").innerHTML = "";
-            document.getElementById("subjectSelect").innerHTML = "";
-            document.getElementById("objectSelect").innerHTML = "";
-
-            document.getElementById("subjectSelect").disabled = true;
-            document.getElementById("objectSelect").disabled = true;
-            document.getElementById("generateBtn").disabled = true;
-            document.getElementById("doneBtn").disabled = true;
-
-            // Clear graph
-            const container = document.getElementById("graph");
-            container.innerHTML = "";
-            document.getElementById("infoBox").innerText = "Click a node or edge to see more details.";
-
-            // Reset file input
-            document.getElementById("csvFile").value = "";
-
-            // Clear success and error messages ✅
-            document.getElementById("messageBox").style.display = "none";
-            document.getElementById("errorBox").style.display = "none";
-        }
-
-        window.onload = () => {
-            const savedUser = localStorage.getItem("currentUser");
-            if (savedUser) {
+                localStorage.setItem("currentUser", username);
                 document.getElementById("loginScreen").style.display = "none";
                 document.getElementById("mainApp").style.display = "block";
-                document.getElementById("currentUserLabel").innerText = `Logged in as: ${savedUser}`;
+                document.getElementById("currentUserLabel").innerText = `Logged in as: ${username}`;
+
                 populateHistoryList();
             }
-        };
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/@uswds/uswds@latest/dist/js/uswds.min.js"></script>
 
-</body>
+            function logoutUser() {
+                // Remove username
+                localStorage.removeItem("currentUser");
+
+                // Hide app, show login screen
+                document.getElementById("mainApp").style.display = "none";
+                document.getElementById("loginScreen").style.display = "flex";
+
+                // Clear file uploads
+                selectedFiles = [];
+                document.getElementById("selectedFilesList").innerHTML = "";
+
+                // Clear triple table
+                document.getElementById("tripleTable").innerHTML = "";
+
+                // Clear dropdowns
+                document.getElementById("subjectFileSelect").innerHTML = "";
+                document.getElementById("objectFileSelect").innerHTML = "";
+                document.getElementById("subjectSelect").innerHTML = "";
+                document.getElementById("objectSelect").innerHTML = "";
+
+                document.getElementById("subjectSelect").disabled = true;
+                document.getElementById("objectSelect").disabled = true;
+                document.getElementById("generateBtn").disabled = true;
+                document.getElementById("doneBtn").disabled = true;
+
+                // Clear graph
+                const container = document.getElementById("graph");
+                container.innerHTML = "";
+                document.getElementById("infoBox").innerText = "Click a node or edge to see more details.";
+
+                // Reset file input
+                document.getElementById("csvFile").value = "";
+
+                // Clear success and error messages ✅
+                document.getElementById("messageBox").style.display = "none";
+                document.getElementById("errorBox").style.display = "none";
+            }
+
+            window.onload = () => {
+                const savedUser = localStorage.getItem("currentUser");
+                if (savedUser) {
+                    document.getElementById("loginScreen").style.display = "none";
+                    document.getElementById("mainApp").style.display = "block";
+                    document.getElementById("currentUserLabel").innerText = `Logged in as: ${savedUser}`;
+                    populateHistoryList();
+                }
+            };
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/@uswds/uswds@latest/dist/js/uswds.min.js"></script>
+    </body>
 
 </html>
