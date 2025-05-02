@@ -1,7 +1,0 @@
-
-const predicates = ["hasType", 
-"relatedTo", 
-"owns", 
-"describes", 
-"connectedTo"
-];

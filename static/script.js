@@ -1,9 +1,18 @@
-
 let filename = "";
 let allEdges = [];
 let allNodes = [];
 let network = null;
-const predicates = ["hasType", "relatedTo", "owns", "describes", "connectedTo"];
+let predicates = [];
+
+async function loadPredicates() {
+    try {
+        const res = await fetch("/static/predicates.json");
+        predicates = await res.json();
+    } catch (err) {
+        console.error("Failed to load predicates:", err);
+        predicates = ["relatedTo"]; // fallback
+    }
+}
 
 let selectedFiles = [];
 
@@ -429,7 +438,9 @@ function logoutUser() {
     document.getElementById("errorBox").style.display = "none";
 }
 
-window.onload = () => {
+window.onload = async () => {
+    await loadPredicates(); // ✅ load predicates first
+
     const savedUser = localStorage.getItem("currentUser");
     if (savedUser) {
         document.getElementById("loginScreen").style.display = "none";
