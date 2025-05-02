@@ -229,6 +229,7 @@ async function submitTriples() {
         triples,
         graphData: data
     });
+    document.getElementById("saveAsBtn").disabled = false;
 }
 
 function cleanFilename(f) {
@@ -437,6 +438,45 @@ function logoutUser() {
     document.getElementById("messageBox").style.display = "none";
     document.getElementById("errorBox").style.display = "none";
 }
+
+function promptSaveAs() {
+    const customName = prompt("Enter a name to save this graph as:");
+    if (!customName || customName.trim() === "") return;
+
+    saveToLocalHistory({
+        filename: customName.trim(),
+        triples: extractTriplesFromTable(),
+        graphData: {
+            nodes: allNodes,
+            edges: allEdges,
+            nodeSources: {}  // optional: include if you store this
+        }
+    });
+
+    alert(`Graph saved as "${customName}"`);
+}
+
+function extractTriplesFromTable() {
+    const selects = document.querySelectorAll("#tripleTable select");
+    const triples = [];
+    const subjectFile = document.getElementById("subjectFileSelect").value;
+    const objectFile = document.getElementById("objectFileSelect").value;
+
+    selects.forEach(sel => {
+        const row = sel.closest("tr");
+        triples.push({
+            subject: row.children[0].innerText,
+            predicate: sel.value,
+            object: row.children[2].innerText,
+            subjectFile,
+            objectFile
+        });
+    });
+
+    return triples;
+}
+
+
 
 window.onload = async () => {
     await loadPredicates(); // ✅ load predicates first
